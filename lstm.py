@@ -13,7 +13,7 @@ import NAS
 
 
 # notset > debug > info > warning > error > critical
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 # logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Main")
 
@@ -38,7 +38,9 @@ def __cifar10__():
 def cifar10(waste_of_space_cifar10=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 10
-	(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+
+	# (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 	'''
 	  Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
 	  x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32) 
@@ -46,28 +48,27 @@ def cifar10(waste_of_space_cifar10=__cifar10__()):
 	    or (num_samples, 32, 32, 3) if the data format is 'channels_last'.
 	  y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
 	'''
-	# dirpath="/Users/zacharris/Datasets/cifar10/cifar10_batches"
-	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
-	# test_filename="test_batch"
+	dirpath="/Users/zacharris/Datasets/cifar10/cifar10_batches"
+	train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+	test_filename="test_batch"
 
-	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	# # logger.info(len(train_batches))
-	# test_batch = unpickle(os.path.join(dirpath, test_filename))
-	# output_dim = 10
+	train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
+	# logger.info(len(train_batches))
+	test_batch = unpickle(os.path.join(dirpath, test_filename))
+	output_dim = 10
 
-	# start = 0
-	# end = 10
-	# data_len=end-start
-	# input_shape = (1, 3072)
-	# dtype='int8'
-	# x_train = np.concatenate( [np.asarray(train_batches[i][b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1])) for i in range(5)])
-	# y_train = np.concatenate( [np.asarray(train_batches[i][b'labels'][start:end], dtype=dtype).reshape((data_len, 1)) for i in range(5)])
-	# x_test = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1]))
-	# y_test = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
-	# # quit(0)
+	start = 0
+	end = 10
+	data_len=end-start
+	input_shape = (1, 3072)
+	dtype='int8'
+	x_train = np.concatenate( [np.asarray(train_batches[i][b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1])) for i in range(5)])
+	y_train = np.concatenate( [np.asarray(train_batches[i][b'labels'][start:end], dtype=dtype).reshape((data_len, 1)) for i in range(5)])
+	x_test = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1]))
+	y_test = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
+	# quit(0)
 
-	# logger.info(x_train.shape)
-	# logger.debug("global0: " + str(base_output_dim))
+	logger.info(x_train.shape)
 
 	return (x_train, y_train, x_test, y_test, output_dim, input_shape)
 
@@ -268,7 +269,7 @@ if __name__ == "__main__":
 
 	X = x_train
 	y = y_train
-	pop_data = train(X, y, pop_data, hyperparams)# , epochs=tf.constant(10, dtype=tf.int64))
+	pop_data = train(X, y, pop_data, hyperparams, epochs=tf.constant(10, dtype=tf.int64))
 
 	pop_data[0][0].summary()
 
