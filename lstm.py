@@ -249,10 +249,10 @@ if __name__ == "__main__":
 	# hyperparams = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 
 	 # to test layer mutations, and their crossover
-	# hyperparams = {'generations': 300, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+	hyperparams = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 	# Actually test algorithm
-	hyperparams = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
+	# hyperparams = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
 	# Build the model/pop
 	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
