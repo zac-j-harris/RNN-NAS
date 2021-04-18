@@ -9,6 +9,7 @@ from lstm import make_bi_LSTM
 from lstm import make_cascaded_LSTM
 from lstm import make_Dense
 from lstm import random_init_values
+# from lstm import mutate_init_values
 import random, logging
 
 logger = logging.getLogger("NAS")
@@ -101,6 +102,11 @@ def crossover(pop_data, hyperparams, fitness):
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: pop_data[4], 5: pop_data[5], 6: input_shapes}
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 	# if model has above mean fitness, add it to crossover array of indices (random selection for parents), NEAT crossover methods or coin toss? (try both?)
+	# Currently, we randomly take matching layer types from either parent
+	# Non-matching layers are taken from more fit parent
+
+
+
 	pop_size = hyperparams['pop_size']
 	mean_fitness = sum(fitness) / pop_size
 	num_elites = int(pop_size * hyperparams['elitism_rate'])
@@ -170,7 +176,7 @@ def crossover(pop_data, hyperparams, fitness):
 					add_data(i, p2, layer_i=layer_i)
 			else:
 				break
-		# Now we take from p1
+		# Now we take from p1 (the parent with higher fitness)
 		if final_ind < len(pop_data[1][p1]):
 			for layer_i in range(final_ind, len(pop_data[1][p1])):
 				add_data(i, p1, layer_i=layer_i)
@@ -219,6 +225,7 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 
 	if random.random() < hyperparams['structure_rate']:
 		'''
+			Structure is added instead of altering the model's existing architecture
 			Everything changes: change model specs, input shapes, layers, then remake model to change population
 		'''
 		m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2}
@@ -227,13 +234,12 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 
 		pop_data = add_layer(pop_data, model_i, layer_i, l_type)
 
-		# model = make_model(model_i, input_shapes=pop_data[6], layers=pop_data[1], model_specifications=pop_data[2])
-		# pop_data[0][model_i] = model
 
 	else:
 		'''
 			Only model_specifications and the model itself changes. Everything else stays the same. 
 			This is because model_specs shows each layer's composition, and we are changing a single layers' composition.
+			TODO: instead of random values, look into minor adjustments
 		'''
 		change = random.choice([0,1,2,3,4])
 		# change = random.choice([0,1,2,3])
@@ -248,17 +254,13 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 			logger.debug(new_init_values)
 		pop_data[2][model_i][layer_i] = new_init_values
 		# quit(0)
-		
-		# model = make_model(model_i, input_shapes=pop_data[6], layers=pop_data[1], model_specifications=pop_data[2])
-		# pop_data[0][model_i] = model
-		# pop_data[1][model_i][layer_i] = pop_data[1][old_index]
-		# pop_data[2][model_i][layer_i] = pop_data[2][old_index]
-		# pop_data[6][model_i][layer_i] = pop_data[6][old_index]
+
 	return pop_data
 
 def mutation(pop_data, hyperparams):
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
+
 	for model_i in range(hyperparams['pop_size']):
 		for layer_i in range(len(pop_data[1][model_i])):
 			if random.random() < hyperparams['mutation_rate']:
