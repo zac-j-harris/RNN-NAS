@@ -36,11 +36,6 @@ def __cifar10__():
 	base_output_dim = 10
 
 def cifar10(waste_of_space_cifar10=__cifar10__()):
-	global base_output_dim
-	base_output_dim = 10
-
-
-	# (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 	'''
 	  Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
 	  x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32) 
@@ -48,6 +43,14 @@ def cifar10(waste_of_space_cifar10=__cifar10__()):
 	    or (num_samples, 32, 32, 3) if the data format is 'channels_last'.
 	  y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
 	'''
+	global base_output_dim
+	base_output_dim = 10
+
+
+	# (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+
+	
 	dirpath="/Users/zacharris/Datasets/cifar10/cifar10_batches"
 	train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
 	test_filename="test_batch"
