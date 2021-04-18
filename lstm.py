@@ -74,24 +74,6 @@ def cifar10(waste_of_space_cifar10=__cifar10__()):
 
 
 
-##### Random Data Setup ##############################
-# input_shape = (5,1)
-
-# #Generate 2 sets of X variables
-# #LSTMs have unique 3-dimensional input requirements 
-# seq_length=5
-# X =[[i+j for j in range(seq_length)] for i in range(100)]
-# X_simple =[[i for i in range(4,104)]]
-# X =np.array(X)
-# X_simple=np.array(X_simple)
-
-
-# # Generate lagged Y-variable
-# y =[[ i+(i-1)*.5+(i-2)*.2+(i-3)*.1 for i in range(4,104)]]
-# y =np.array(y)
-# X_simple=X_simple.reshape((100,1))
-# X=X.reshape((100,5,1))
-# y=y.reshape((100,1))
 
 
 # quit(0)
@@ -177,16 +159,6 @@ def train_test_single_gen(X, y, population, epochs, batch_size, validation_split
 	logger.debug("Testing models:")
 	return accuracy # Currently testing on same data as trained
 
-
-# def train_test_single_gen(X, y, population, epochs, batch_size, validation_split, verbose):
-# 	logger.debug("Fitting models:")
-# 	for model in population:
-# 		model.fit(X,y,epochs=epochs,batch_size=batch_size,validation_split=validation_split,verbose=verbose);
-# 	logger.debug("Testing models:")
-# 	# return [test(X, y, population[i])[1] for i in range(len(population))] # Tests on same data as trained
-# 	return [test(X, y, population[model_i]  )[1] for model_i in range(len(population))] # Tests on same data as trained
-	# return [random.random() * 2 + 9 for i in range(len(population))]
-
 	# scores = test(X, y, pop_data[0][0])
 	# print(scores)
 	# print('Accuracy: {}'.format(scores[1]))
@@ -254,13 +226,14 @@ if __name__ == "__main__":
 	# Actually test algorithm
 	# hyperparams = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
-	# Build the model/pop
+	# Build a random model/pop
 	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
 	# make_random_model(output_dim, input_shape, model, random_init_values(), type="uni")
 	# make_random_model(output_dim, input_shape, model, random_init_values(), random_init_values(), type="cascaded")
 	# model.summary()
 
-	# binary specifications are useless if I don't perturb by bit
+
+	# binary specifications are useless if I don't perturb by bits
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	pop_data = init_pop(output_dim, input_shape, m_type="uni", pop_size=hyperparams['pop_size'])
 	pop_data[0][0].summary()
