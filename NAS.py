@@ -35,7 +35,7 @@ logger = logging.getLogger("NAS")
 
 def make_model(model_i, model=None, input_shapes=None, layers=None, model_specifications=None):
 	# TODO: test2
-	model = Sequential() if model == None else model
+	model = Sequential() if model is None else model
 	for layer_i in range(len(layers[model_i])):
 		not_final_layer = (layer_i != len(layers[model_i]) - 1)
 		layer = layers[model_i][layer_i]
@@ -55,15 +55,14 @@ def make_model(model_i, model=None, input_shapes=None, layers=None, model_specif
 
 
 def make_pop(output_dim=None, input_shapes=None, layers=None, model_specifications=None, pop_binary_specifications=None, pop_size=10, m_type=None):
-	'''
+	"""
 		Returns an array of models consisting of a single LSTM layer followed by a single Dense layer.
-		@param output_dim
-	'''
+	"""
 	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2}
 	model_type = m_type_dict[m_type]
 	population = [Sequential() for _ in range(pop_size)]
 
-	if model_specifications != None:
+	if model_specifications is not None:
 		# TODO: build the pop according to specifications.
 		for model_i in range(len(population)):
 			model = population[model_i]
@@ -107,9 +106,8 @@ def crossover(pop_data, hyperparams, fitness):
 	# Non-matching layers are taken from more fit parent
 
 
-
 	pop_size = hyperparams['pop_size']
-	mean_fitness = sum(fitness) / pop_size
+	# mean_fitness = sum(fitness) / pop_size
 	num_elites = int(pop_size * hyperparams['elitism_rate'])
 	elites = [0 for _ in range(num_elites)]
 	half_pop_size = pop_size // 2 + 1 if pop_size // 2 != pop_size / 2 else pop_size // 2
@@ -127,16 +125,16 @@ def crossover(pop_data, hyperparams, fitness):
 		above_average[num_elites] = current_max
 		num_elites += 1
 	
-	population = [Sequential() for i in range(pop_size)]
+	population = [Sequential() for _ in range(pop_size)]
 	layers = [[0 for _ in range(len(pop_data[2][i]))] for i in range(pop_size)]
-	model_specifications = [[(0,0,0,0,0) for _ in range(len(pop_data[2][i]))] for i in range(pop_size)]
+	model_specifications = [ [(0,0,0,0,0) for _ in range(len(pop_data[2][i]))] for i in range(pop_size)]
 	# pop_binary_specifications = [[] for i in range(pop_size)]
 	pop_binary_specifications = None
 	input_shapes = [[(0, 1) for _ in range(len(pop_data[2][i]))] for i in range(pop_size)]
 	# output_dims = [[] for i in range(pop_size)]
 
 	def add_data(new_index, old_index, layer_i=None):
-		if layer_i != None:
+		if layer_i is not None:
 			# population[new_index] = pop_data[0][old_index]
 			layers[new_index][layer_i] = pop_data[1][old_index][layer_i]
 			model_specifications[new_index][layer_i] = pop_data[2][old_index][layer_i]
@@ -166,63 +164,61 @@ def crossover(pop_data, hyperparams, fitness):
 		smallest_len = len(pop_data[1][p1]) if len(pop_data[1][p1]) < len(pop_data[1][p2]) else len(pop_data[1][p2])
 		final_ind = 0
 		population[i] = pop_data[0][p1] # this moves p1 as a base to the new index in population
-		for layer_i in range(smallest_len):
-			final_ind = layer_i
-			if pop_data[1][p1][layer_i] == pop_data[1][p2][layer_i]:
+		for layer_ind in range(smallest_len):
+			final_ind = layer_ind
+			if pop_data[1][p1][layer_ind] == pop_data[1][p2][layer_ind]:
 				# Take from fit parent for non-matching genes, otherwise random
 				# Here we take random
 				if random.random() < 0.5:
-					add_data(i, p1, layer_i=layer_i)
+					add_data(i, p1, layer_i=layer_ind)
 				else:
-					add_data(i, p2, layer_i=layer_i)
+					add_data(i, p2, layer_i=layer_ind)
 			else:
 				break
 		# Now we take from p1 (the parent with higher fitness)
 		if final_ind < len(pop_data[1][p1]):
-			for layer_i in range(final_ind, len(pop_data[1][p1])):
-				add_data(i, p1, layer_i=layer_i)
+			for layer_ind in range(final_ind, len(pop_data[1][p1])):
+				add_data(i, p1, layer_i=layer_ind)
 
 
 	new_pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: pop_data[4], 5: pop_data[5], 6: input_shapes}
 	return new_pop_data
 
+def add_layer(pop_data, model_i, layer_i, layer_type):
+	"""
+		Updates pop_data with new layer, but does not make new model
+	"""
+	output_dim = pop_data[2][model_i][layer_i][4]
+	num_layers = len(pop_data[2][model_i])
+	old_input_shape = pop_data[6][model_i][layer_i]
+	new_input_shape = (old_input_shape[1], output_dim)
+
+	layers = [[] for _ in range(num_layers + 1)]
+	specs = [('', '', '', 0.0, 0) for _ in range(num_layers + 1)]
+	input_shapes = [(0, 0) for _ in range(num_layers + 1)]
+	delta = 0
+	for i in range(num_layers + 1):
+		if i == layer_i + 1:
+			delta = 1
+			layers[i] = layer_type
+			# specs[i] = random_init_values(output_dim=int(random.random() * 10 * output_dim))
+			specs[i] = random_init_values()
+			input_shapes[i] = new_input_shape
+		else:
+			if i == layer_i + 2:
+				input_shapes[i] = (input_shapes[i - 1][1], specs[i - 1][4])
+			else:
+				input_shapes[i] = pop_data[6][model_i][i - delta]
+			layers[i] = pop_data[1][model_i][i - delta]
+			specs[i] = pop_data[2][model_i][i - delta]
+
+	pop_data[1][model_i] = layers
+	pop_data[2][model_i] = specs
+	pop_data[6][model_i] = input_shapes
+	return pop_data
 
 
 def mutate(model_i, layer_i, pop_data, hyperparams):
-	
-	def add_layer(pop_data, model_i, layer_i, layer_type):
-		'''
-			Updates pop_data with new layer, but does not make new model
-		'''
-		output_dim = pop_data[2][model_i][layer_i][4]
-		num_layers = len(pop_data[2][model_i])
-		old_input_shape = pop_data[6][model_i][layer_i]
-		new_input_shape = (old_input_shape[1], output_dim)
-		is_last_layer = layer_i == num_layers - 1
-		
-		layers = [[] for _ in range(num_layers + 1)]
-		specs = [('','','',0.0,0) for _ in range(num_layers + 1)]
-		input_shapes = [(0, 0) for _ in range(num_layers + 1)]
-		delta = 0
-		for i in range(num_layers + 1):
-			if i == layer_i + 1:
-				delta = 1
-				layers[i] = layer_type
-				# specs[i] = random_init_values(output_dim=int(random.random() * 10 * output_dim))
-				specs[i] = random_init_values()
-				input_shapes[i] = new_input_shape
-			else:
-				if i == layer_i + 2:
-					input_shapes[i] = (input_shapes[i-1][1], specs[i-1][4])
-				else:
-					input_shapes[i] = pop_data[6][model_i][i - delta]
-				layers[i] = pop_data[1][model_i][i - delta]
-				specs[i] = pop_data[2][model_i][i - delta]
-				
-		pop_data[1][model_i] = layers
-		pop_data[2][model_i] = specs
-		pop_data[6][model_i] = input_shapes
-		return pop_data
 
 	if random.random() < hyperparams['structure_rate']:
 		'''
@@ -237,12 +233,11 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 
 
 	else:
-		'''
+		"""
 			Only model_specifications and the model itself changes. Everything else stays the same. 
 			This is because model_specs shows each layer's composition, and we are changing a single layers' composition.
-			:TODO: instead of random values, look into minor adjustments
-			
-		'''
+			TODO: instead of random values, look into minor adjustments
+		"""
 		change = random.choice([0,1,2,3,4])
 		# change = random.choice([0,1,2,3])
 		layer_specs = [i for i in pop_data[2][model_i][layer_i]]
