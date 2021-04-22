@@ -98,17 +98,17 @@ def make_pop(output_dim=None, input_shapes=None, layers=None, model_specificatio
 
 
 
-def crossover(pop_data, hyperparams, fitness):
+def crossover(pop_data, h_params, fitness):
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: pop_data[4], 5: pop_data[5], 6: input_shapes}
-	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
+	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 	# if model has above mean fitness, add it to crossover array of indices (random selection for parents), NEAT crossover methods or coin toss? (try both?)
 	# Currently, we randomly take matching layer types from either parent
 	# Non-matching layers are taken from more fit parent
 
 
-	pop_size = hyperparams['pop_size']
+	pop_size = h_params['pop_size']
 	# mean_fitness = sum(fitness) / pop_size
-	num_elites = int(pop_size * hyperparams['elitism_rate'])
+	num_elites = int(pop_size * h_params['elitism_rate'])
 	elites = [0 for _ in range(num_elites)]
 	half_pop_size = pop_size // 2 + 1 if pop_size // 2 != pop_size / 2 else pop_size // 2
 	above_average = [0 for _ in range(half_pop_size)]
@@ -218,9 +218,9 @@ def add_layer(pop_data, model_i, layer_i, layer_type):
 	return pop_data
 
 
-def mutate(model_i, layer_i, pop_data, hyperparams):
+def mutate(model_i, layer_i, pop_data, h_params):
 
-	if random.random() < hyperparams['structure_rate']:
+	if random.random() < h_params['structure_rate']:
 		'''
 			Structure is added instead of altering the model's existing architecture
 			Everything changes: change model specs, input shapes, layers, then remake model to change population
@@ -254,14 +254,14 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 
 	return pop_data
 
-def mutation(pop_data, hyperparams):
+def mutation(pop_data, h_params):
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
-	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
+	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
-	for model_i in range(hyperparams['pop_size']):
+	for model_i in range(h_params['pop_size']):
 		for layer_i in range(len(pop_data[1][model_i])):
-			if random.random() < hyperparams['mutation_rate']:
-				pop_data = mutate(model_i, layer_i, pop_data, hyperparams)
+			if random.random() < h_params['mutation_rate']:
+				pop_data = mutate(model_i, layer_i, pop_data, h_params)
 	return pop_data
 
 
