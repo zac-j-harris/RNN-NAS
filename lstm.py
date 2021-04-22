@@ -48,9 +48,11 @@ def load_cifar10(_=__cifar10__()):
 	"""
 	global base_output_dim
 	base_output_dim = 10
-	input_shape = (1, 3072)
+	input_shape = (3, 1024)
 
 	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+	x_t = x_t.reshape((len(x_t), 3, 1024))
+	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
 
 	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
 	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
