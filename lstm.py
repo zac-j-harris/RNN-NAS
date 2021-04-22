@@ -1,7 +1,6 @@
 #Load Packages
 import numpy as np
 from keras.models import Sequential
-# from tensorflow import int8
 import tensorflow as tf
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -28,21 +27,21 @@ def unpickle(file):
     return dict
 
 
+# CIFAR-10 Data Setup ##############################
 
-##### CIFAR-10 Data Setup ##############################
 
 def __cifar10__():
 	global base_output_dim
 	base_output_dim = 10
 
 def cifar10(waste_of_space_cifar10=__cifar10__()):
-	'''
-	  Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
-	  x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32) 
-	    if tf.keras.backend.image_data_format() is 'channels_first', 
-	    or (num_samples, 32, 32, 3) if the data format is 'channels_last'.
-	  y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
-	'''
+	"""
+		Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
+		x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32)
+		if tf.keras.backend.image_data_format() is 'channels_first',
+		or (num_samples, 32, 32, 3) if the data format is 'channels_last'.
+		y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
+	"""
 	global base_output_dim
 	base_output_dim = 10
 
@@ -97,20 +96,15 @@ def random_init_values(activation=None, initializer=None, constraint=None, dropo
 	return (activation, initializer, constraint, dropout, output_dim)
 
 
-def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
+def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
 	init_values = random_init_values() if init_values == None else init_values
-	# return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences, dtype=dtype, input_shape=input_shape)
 	return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
 
-def make_bi_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
-	# return Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences), dtype=dtype, input_shape=input_shape)
+def make_bi_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
 	init_values = random_init_values() if init_values == None else init_values
 	return Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences), input_shape=input_shape)
 
-# def make_cascaded_LSTM(output_dim, input_shape, init_values1=random_init_values(), init_values2=random_init_values(), return_sequences=False):
-def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
-	# return (Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=True), dtype=dtype, input_shape=input_shape),
-	# 		LSTM(output_dim, activation=init_values[0], input_shape=input_shape, dtype=dtype, kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences))
+def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
 	init_values = random_init_values() if init_values == None else init_values
 	return (Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=True), input_shape=input_shape),
 			LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences))
@@ -120,10 +114,7 @@ def make_Dense(output_dim, init_values=None):
 	return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2])
 
 
-def make_random_model(output_dim, input_shape, model, random_init_values, random_init_values2=None, type=random.choice(["uni", "bi", "cascaded"])):
-	# randrange = int(random.random() * 10)
-	# if type == "cascaded" and random_init_values2 == None:
-	# 	random_init_values2 = random_init_values()
+def make_random_model(output_dim, input_shape, model, random_init_values, type=random.choice(["uni", "bi", "cascaded"])):
 
 	# number of layers
 	randrange = int(random.random() * 2) + 1
@@ -131,8 +122,7 @@ def make_random_model(output_dim, input_shape, model, random_init_values, random
 	for i in range(randrange):
 		output_shape = random.randint(output_dim, output_dim * 10)
 		not_final_run = (i != randrange - 1)
-		# print("i = " + str(i) + ", randrange = " + str(randrange) + ", not_final_run = " + str(not_final_run))
-		if type=="uni":
+		if type =="uni":
 			model.add(make_uni_LSTM(output_shape, input_shape, init_values=random_init_values, return_sequences=not_final_run)) #True = many to many
 		elif type == "bi":
 			model.add(make_bi_LSTM(output_shape, input_shape, init_values=random_init_values, return_sequences=not_final_run))
