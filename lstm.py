@@ -38,10 +38,12 @@ def __cifar10__():
 def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 10
-	# cifar10.load_data()
-	(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 	output_dim = 10
-	input_shape = (1, 3072)
+	input_shape = (3, 1024)
+
+	(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+	x_train = x_train.reshape((len(x_train), 3, 1024))
+	x_test = x_test.reshape((len(x_test), 3, 1024))
 	'''
 	  Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
 	  x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32) 
