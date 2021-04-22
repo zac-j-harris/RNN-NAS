@@ -1,6 +1,6 @@
-# 
+#
 # @author - zac-j-harris
-# 
+#
 
 import random
 from keras.models import Sequential
@@ -16,7 +16,7 @@ logger = logging.getLogger("NAS")
 
 # def dec_to_bin(dec, buf_len):
 # 	pass
-
+# TODO: test
 
 # def pop_specs_to_bin(layers, specs):
 # 	bin_list = [['' for __ in range(len(layers[i]))] for i in range(len(layers))]
@@ -34,6 +34,7 @@ logger = logging.getLogger("NAS")
 # 					b_str += dec_to_bin(specs[model_i][layer_i][i], buf[i])[2:]
 
 def make_model(model_i, model=None, input_shapes=None, layers=None, model_specifications=None):
+	# TODO: test2
 	model = Sequential() if model == None else model
 	for layer_i in range(len(layers[model_i])):
 		not_final_layer = (layer_i != len(layers[model_i]) - 1)
@@ -48,7 +49,7 @@ def make_model(model_i, model=None, input_shapes=None, layers=None, model_specif
 			model.add(b)
 		elif layer == 3:
 			model.add(make_Dense(model_specifications[model_i][layer_i][4], init_values=model_specifications[model_i][layer_i])) # pop_spec does have a value, because it's never not created
-	model.compile(loss="mean_absolute_error",optimizer ='adam',metrics=['accuracy'])
+	model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
 
 	return model
 
@@ -56,6 +57,7 @@ def make_model(model_i, model=None, input_shapes=None, layers=None, model_specif
 def make_pop(output_dim=None, input_shapes=None, layers=None, model_specifications=None, pop_binary_specifications=None, pop_size=10, m_type=None):
 	'''
 		Returns an array of models consisting of a single LSTM layer followed by a single Dense layer.
+		@param output_dim
 	'''
 	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2}
 	model_type = m_type_dict[m_type]
@@ -88,7 +90,6 @@ def make_pop(output_dim=None, input_shapes=None, layers=None, model_specificatio
 		# output_dims = new_output_dims
 		input_shapes = new_input_shapes
 		# pop_binary_specifications = pop_specs_to_bin(layers, model_specifications)
-
 
 	return {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 
@@ -239,7 +240,8 @@ def mutate(model_i, layer_i, pop_data, hyperparams):
 		'''
 			Only model_specifications and the model itself changes. Everything else stays the same. 
 			This is because model_specs shows each layer's composition, and we are changing a single layers' composition.
-			TODO: instead of random values, look into minor adjustments
+			:TODO: instead of random values, look into minor adjustments
+			
 		'''
 		change = random.choice([0,1,2,3,4])
 		# change = random.choice([0,1,2,3])
