@@ -205,13 +205,13 @@ def train(X, y, pop_data, hyperparams, epochs=tf.constant(500), batch_size=tf.co
 	for _ in range(hyperparams['generations']):
 		logger.debug("Testing:")
 		fitness = train_test_single_gen(X, y, pop_data[0], epochs, batch_size, validation_split, verbose) # Tests on same data as trained
-		logger.info(fitness)
+		logger.debug(fitness)
 		# # crossover - requires: pop_data, hyperparams, fitness		- returns: pop_data
 		logger.debug("Crossover:")
 		pop_data = NAS.crossover(pop_data, hyperparams, fitness)
 		# mutation  - requires: pop_data, hyperparams 				- returns: pop_data
 		pop_data[0][0].summary()
-		logger.info("Mutation:")
+		logger.debug("Mutation:")
 		pop_data = NAS.mutation(pop_data, hyperparams)
 		# Rebuild the population (of models) with the new specifications
 		logger.debug("Remake:")
@@ -240,9 +240,8 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, output_dim, input_shape) = load_cifar10()
 	logger.debug("global: " + str(base_output_dim))
 	logger.info("Data loaded...")
-	quit(0)
 	# quit(0)
-	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
+	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 	# - crossover rate is useless because what purpose is there to randomly change between init_values? none. it's random and does not carry over information.
 	# hyperparams = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
