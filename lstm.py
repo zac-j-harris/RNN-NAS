@@ -35,10 +35,13 @@ def __cifar10__():
 	global base_output_dim
 	base_output_dim = 10
 
-def cifar10(waste_of_space_cifar10=__cifar10__()):
+def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 10
+	# cifar10.load_data()
 	(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+	output_dim = 10
+	input_shape = (1, 3072)
 	'''
 	  Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
 	  x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32) 
@@ -53,12 +56,10 @@ def cifar10(waste_of_space_cifar10=__cifar10__()):
 	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
 	# # logger.info(len(train_batches))
 	# test_batch = unpickle(os.path.join(dirpath, test_filename))
-	# output_dim = 10
 
 	# start = 0
 	# end = 10
 	# data_len=end-start
-	# input_shape = (1, 3072)
 	# dtype='int8'
 	# x_train = np.concatenate( [np.asarray(train_batches[i][b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1])) for i in range(5)])
 	# y_train = np.concatenate( [np.asarray(train_batches[i][b'labels'][start:end], dtype=dtype).reshape((data_len, 1)) for i in range(5)])
@@ -236,7 +237,7 @@ def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascad
 
 if __name__ == "__main__":
 	# Get data
-	(x_train, y_train, x_test, y_test, output_dim, input_shape) = cifar10()
+	(x_train, y_train, x_test, y_test, output_dim, input_shape) = load_cifar10()
 	logger.debug("global: " + str(base_output_dim))
 	logger.info("Data loaded...")
 	quit(0)
