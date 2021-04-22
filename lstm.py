@@ -238,7 +238,8 @@ if __name__ == "__main__":
 	# Get data
 	(x_train, y_train, x_test, y_test, output_dim, input_shape) = cifar10()
 	logger.debug("global: " + str(base_output_dim))
-
+	logger.info("Data loaded...")
+	quit(0)
 	# quit(0)
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
 	# - crossover rate is useless because what purpose is there to randomly change between init_values? none. it's random and does not carry over information.
