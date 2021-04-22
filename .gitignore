@@ -7,6 +7,8 @@ __pycache__/
 # OSX Files
 .DS_Store
 
+# Jetbrains files
+.idea
 
 # C extensions
 *.so
