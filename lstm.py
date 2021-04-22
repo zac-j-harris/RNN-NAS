@@ -48,32 +48,32 @@ def load_cifar10(_=__cifar10__()):
 	"""
 	global base_output_dim
 	base_output_dim = 10
-
-	# (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-
-	dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
-	train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
-	test_filename = "test_batch"
-
-	train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	# logger.info(len(train_batches))
-	test_batch = unpickle(os.path.join(dirpath, test_filename))
-	# output_dim = 10
-
-	start = 0
-	end = 10
-	data_len = end - start
 	input_shape = (1, 3072)
-	dtype = 'int8'
-	x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
-	                                     dtype=dtype).reshape((data_len, 1, input_shape[1])) for i in range(5)])
-	y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
-	                                     dtype=dtype).reshape((data_len, 1)) for i in range(5)])
-	x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1]))
-	y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
-	# quit(0)
 
-	logger.info(x_train.shape)
+	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+
+	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
+	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+	# test_filename = "test_batch"
+	#
+	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
+	# # logger.info(len(train_batches))
+	# test_batch = unpickle(os.path.join(dirpath, test_filename))
+	# # output_dim = 10
+	#
+	# start = 0
+	# end = 10
+	# data_len = end - start
+	# dtype = 'int8'
+	# x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
+	#                                      dtype=dtype).reshape((data_len, 1, input_shape[1])) for i in range(5)])
+	# y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
+	#                                      dtype=dtype).reshape((data_len, 1)) for i in range(5)])
+	# x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, 1, input_shape[1]))
+	# y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
+	# # quit(0)
+	#
+	# logger.info(x_t.shape)
 
 	return x_t, y_t, x_tst, y_tst, input_shape
 
@@ -247,7 +247,7 @@ if __name__ == "__main__":
 
 	# binary specifications are useless if I don't perturb by bits
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
-	population_metadata = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=h_params['pop_size'])
+	population_metadata = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 	population_metadata[0][0].summary()
 
 	population_metadata = train(X=x_train, y=y_train, pop_data=population_metadata, h_params=hyperparameters,
