@@ -2,9 +2,9 @@
 
 #SBATCH --job-name=rnn-alg
 #SBATCH --account=mallet
-#SBATCH --time=0-00:01:00
-#SBATCH -o /home/zharris1/Documents/Jobs/RNN-NAS/out_%A.txt
-#SBATCH -e /home/zharris1/Documents/Jobs/RNN-NAS/err_%A.txt
+#SBATCH --time=0-04:00:00
+#SBATCH -o /home/zharris1/Documents/Jobs/RNN-NAS/slurms/out_%A.txt
+#SBATCH -e /home/zharris1/Documents/Jobs/RNN-NAS/slurms/err_%A.txt
 ###
 
 
