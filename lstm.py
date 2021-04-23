@@ -199,7 +199,7 @@ def train_test_single_gen(X, y, population, epochs, batch_size, validation_split
 
 
 
-def train(X, y, pop_data, hyperparams, epochs=tf.constant(500, dtype=int64), batch_size=tf.constant(5), validation_split=tf.constant(0.05), verbose=tf.constant(0)):
+def train(X, y, pop_data, hyperparams, epochs=tf.constant(500, dtype=tf.int64), batch_size=tf.constant(5), validation_split=tf.constant(0.05), verbose=tf.constant(0)):
 	# import NAS
 	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
