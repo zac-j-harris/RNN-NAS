@@ -1,16 +1,19 @@
-#Load Packages
+# Load Packages
+
+import NAS
+import logging
 import numpy as np
-from keras.models import Sequential
-# from tensorflow import int8
+import os
+import pickle
+import random
 import tensorflow as tf
+from keras.datasets import cifar10
+from keras.layers import Activation
+from keras.layers import Bidirectional
 from keras.layers import Dense
 from keras.layers import LSTM
-from keras.layers import Bidirectional
-from keras.layers import Activation
-from keras.datasets import cifar10
-import random, pickle, os, logging
-import NAS
-
+from keras.models import Sequential
+from keras.backend import clear_session
 
 # notset > debug > info > warning > error > critical
 logging.basicConfig(level=logging.INFO)
@@ -22,19 +25,20 @@ base_output_dim = 0
 
 
 def unpickle(file):
-    import pickle
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
+	import pickle
+	with open(file, 'rb') as fo:
+		dict = pickle.load(fo, encoding='bytes')
+	return dict
 
 
+# CIFAR-10 Data Setup ##############################
 
-##### CIFAR-10 Data Setup ##############################
 
 def __cifar10__():
 	global base_output_dim
 	base_output_dim = 10
 
+<<<<<<< HEAD
 def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 10
@@ -54,10 +58,32 @@ def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	# dirpath="/Users/zacharris/Datasets/cifar10/cifar10_batches"
 	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
 	# test_filename="test_batch"
+=======
 
+def load_cifar10(_=__cifar10__()):
+	"""
+		Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
+		x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32)
+		if tf.keras.backend.image_data_format() is 'channels_first',
+		or (num_samples, 32, 32, 3) if the data format is 'channels_last'.
+		y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
+	"""
+	global base_output_dim
+	base_output_dim = 1
+	input_shape = (3, 1024)
+
+	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+	x_t = x_t.reshape((len(x_t), 3, 1024))
+	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
+>>>>>>> dev
+
+	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
+	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+	# test_filename = "test_batch"
+	
 	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	# # logger.info(len(train_batches))
 	# test_batch = unpickle(os.path.join(dirpath, test_filename))
+<<<<<<< HEAD
 
 	# start = 0
 	# end = 10
@@ -71,141 +97,151 @@ def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 
 	# logger.info(x_train.shape)
 	# logger.debug("global0: " + str(base_output_dim))
+=======
+	
+	# start = 0
+	# end = 2
+	# num_batches = 2
+	# data_len = end - start
+	# dtype = 'int8'
+	# x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
+	#                                      dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
+	# y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
+	#                                      dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
+	# x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
+	# y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
+	
+	# logger.info(x_t.shape)
 
-	return (x_train, y_train, x_test, y_test, output_dim, input_shape)
-
-
-
-##### Random Data Setup ##############################
-# input_shape = (5,1)
-
-# #Generate 2 sets of X variables
-# #LSTMs have unique 3-dimensional input requirements 
-# seq_length=5
-# X =[[i+j for j in range(seq_length)] for i in range(100)]
-# X_simple =[[i for i in range(4,104)]]
-# X =np.array(X)
-# X_simple=np.array(X_simple)
-
-
-# # Generate lagged Y-variable
-# y =[[ i+(i-1)*.5+(i-2)*.2+(i-3)*.1 for i in range(4,104)]]
-# y =np.array(y)
-# X_simple=X_simple.reshape((100,1))
-# X=X.reshape((100,5,1))
-# y=y.reshape((100,1))
+	return x_t, y_t, x_tst, y_tst, input_shape
+>>>>>>> dev
 
 
 # quit(0)
 
 
-
 def random_init_values(activation=None, initializer=None, constraint=None, dropout=None, output_dim=None):
 	global base_output_dim
-	# quit(0)
-	activation = random.choice({0: "softmax", 1: "softplus", 2: "relu", 3: "tanh", 4: "sigmoid", 5: "hard_sigmoid", 6: "linear"}) if activation == None else activation
-	initializer = random.choice({0: "zero", 1: "uniform", 2: "lecun_uniform", 3: "glorot_normal", 4: "glorot_uniform", 
-								 5: "normal", 6: "he_normal", 7: "he_uniform"}) if initializer == None else initializer
-	constraint = random.choice({0: "maxnorm", 1: "nonneg", 2: "unitnorm", 3: None}) if constraint == None else constraint
-	dropout = random.choice({0: 0.0, 1: 0.1, 2: 0.15, 3: 0.2, 4: 0.25, 5: 0.3, 6: 0.4, 7: 0.5}) if dropout == None else dropout
-	if output_dim == None:
+
+	activation = random.choice({0: "softmax", 1: "softplus", 2: "relu", 3: "tanh", 4: "sigmoid", 5: "hard_sigmoid",
+								6: "linear"}) if activation is None else activation
+	initializer = random.choice({0: "zero", 1: "uniform", 2: "lecun_uniform", 3: "glorot_normal", 4: "glorot_uniform",
+								 5: "normal", 6: "he_normal", 7: "he_uniform"}) if initializer is None else initializer
+	constraint = random.choice(
+		{0: "maxnorm", 1: "nonneg", 2: "unitnorm", 3: None}) if constraint == 0 else constraint
+	dropout = random.choice(
+		{0: 0.0, 1: 0.1, 2: 0.15, 3: 0.2, 4: 0.25, 5: 0.3, 6: 0.4, 7: 0.5}) if dropout is None else dropout
+	if output_dim is None:
 		logger.debug("global2: " + str(base_output_dim))
-	output_dim = int(random.random() * 10.0 * base_output_dim) + base_output_dim if output_dim == None else output_dim
-	return (activation, initializer, constraint, dropout, output_dim)
+	output_dim = int(random.random() * 10.0 * base_output_dim) + base_output_dim if output_dim is None else output_dim
+	return activation, initializer, constraint, dropout, output_dim
 
 
-def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
-	init_values = random_init_values() if init_values == None else init_values
-	# return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences, dtype=dtype, input_shape=input_shape)
-	return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
+def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
+	init_values = random_init_values() if init_values is None else init_values
+	return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+				kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
 
-def make_bi_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
-	# return Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences), dtype=dtype, input_shape=input_shape)
-	init_values = random_init_values() if init_values == None else init_values
-	return Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences), input_shape=input_shape)
 
-# def make_cascaded_LSTM(output_dim, input_shape, init_values1=random_init_values(), init_values2=random_init_values(), return_sequences=False):
-def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequences=False, dtype=np.int8):
-	# return (Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=True), dtype=dtype, input_shape=input_shape),
-	# 		LSTM(output_dim, activation=init_values[0], input_shape=input_shape, dtype=dtype, kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences))
-	init_values = random_init_values() if init_values == None else init_values
-	return (Bidirectional(LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=True), input_shape=input_shape),
-			LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2], return_sequences=return_sequences))
+def make_bi_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
+	init_values = random_init_values() if init_values is None else init_values
+	return Bidirectional(
+		LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2],
+			 return_sequences=return_sequences), input_shape=input_shape)
+
+
+def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
+	init_values = random_init_values() if init_values is None else init_values
+	return (Bidirectional(
+		LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2],
+			 return_sequences=True), input_shape=input_shape),
+			LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1],
+				 kernel_constraint=init_values[2], return_sequences=return_sequences))
+
 
 def make_Dense(output_dim, init_values=None):
-	init_values = random_init_values() if init_values == None else init_values
-	return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2])
+	init_values = random_init_values() if init_values is None else init_values
+	return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+				 kernel_constraint=init_values[2])
 
 
-def make_random_model(output_dim, input_shape, model, random_init_values, random_init_values2=None, type=random.choice(["uni", "bi", "cascaded"])):
-	# randrange = int(random.random() * 10)
-	# if type == "cascaded" and random_init_values2 == None:
-	# 	random_init_values2 = random_init_values()
+# def make_random_model(output_dim, input_shape, model, random_init_vals,
+# 					  type=random.choice(["uni", "bi", "cascaded"])):
+# 	# number of layer_types
+# 	randrange = int(random.random() * 2) + 1
 
-	# number of layers
-	randrange = int(random.random() * 2) + 1
-
-	for i in range(randrange):
-		output_shape = random.randint(output_dim, output_dim * 10)
-		not_final_run = (i != randrange - 1)
-		# print("i = " + str(i) + ", randrange = " + str(randrange) + ", not_final_run = " + str(not_final_run))
-		if type=="uni":
-			model.add(make_uni_LSTM(output_shape, input_shape, init_values=random_init_values, return_sequences=not_final_run)) #True = many to many
-		elif type == "bi":
-			model.add(make_bi_LSTM(output_shape, input_shape, init_values=random_init_values, return_sequences=not_final_run))
-		elif type == "cascaded":
-			(a, b) = make_cascaded_LSTM(output_shape, input_shape, init_values=random_init_values, return_sequences=not_final_run)
-			model.add(a)
-			model.add(b)
-		input_shape = (input_shape[0], output_shape, 1)
-	model.add(make_Dense(input_shape[1], ("sigmoid", "normal", None)))
-	model.add(make_Dense(output_dim, ("sigmoid", "normal", None)))
-	# model.add(make_Dense(10, kernel_initializer="normal",activation="linear"))
+# 	for i in range(randrange):
+# 		output_shape = random.randint(output_dim, output_dim * 10)
+# 		not_final_run = (i != randrange - 1)
+# 		if type == "uni":
+# 			model.add(make_uni_LSTM(output_shape, input_shape, init_values=random_init_vals,
+# 									return_sequences=not_final_run))  # True = many to many
+# 		elif type == "bi":
+# 			model.add(
+# 				make_bi_LSTM(output_shape, input_shape, init_values=random_init_vals, return_sequences=not_final_run))
+# 		elif type == "cascaded":
+# 			(a, b) = make_cascaded_LSTM(output_shape, input_shape, init_values=random_init_vals,
+# 										return_sequences=not_final_run)
+# 			model.add(a)
+# 			model.add(b)
+# 		input_shape = (input_shape[0], output_shape, 3)
+# 	model.add(make_Dense(input_shape[1], ("sigmoid", "normal", None)))
+# 	model.add(make_Dense(output_dim, ("sigmoid", "normal", None)))
 
 
+# model.add(make_Dense(10, kernel_initializer="normal",activation="linear"))
 
-def remake_pop(pop_data):
+
+def remake_pop(population):
 	# import NAS
-	# return NAS.make_pop(output_dims=pop_data[5], input_shapes=pop_data[6], layers=pop_data[1], model_specifications=pop_data[2], pop_binary_specifications=pop_data[3], pop_size=pop_data[7], m_type=pop_data[4])
-	return NAS.make_pop(input_shapes=pop_data[6], layers=pop_data[1], model_specifications=pop_data[2], pop_binary_specifications=pop_data[3], pop_size=pop_data[5], m_type=pop_data[4])
+
+	# for model_i in range(len(population['models'])):
+	# 	ind_last = len(population['layer_types'][model_i])-1
+	# 	population['input_shapes'][model_i][ind_last] = (None, base_output_dim)
+	# 	population['layer_specs'][model_i][ind_last] = random_init_values("sigmoid", "normal", None, output_dim=base_output_dim)
+	return NAS.make_pop(input_shapes=population['input_shapes'], layer_types=population['layer_types'], layer_specs=population['layer_specs'],
+						pop_size=population['pop_size'], m_type=population['m_type'])
+
+def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
+	# import NAS
+	return NAS.make_pop(output_dim=output_dim, input_shapes=input_shape, pop_size=pop_size, m_type=m_type)
 
 
-def train_test_single_gen(X, y, population, epochs, batch_size, validation_split, verbose):
+def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose):
 	accuracy = [0 for _ in range(len(population))]
 	logger.debug("Fitting models:")
 	for model_i in range(len(population)):
-		population[model_i].fit(X,y,epochs=epochs,batch_size=batch_size,validation_split=validation_split,verbose=verbose);
-		accuracy[model_i] = test(X, y, population[model_i] )[1]
-	logger.debug("Testing models:")
-	return accuracy # Currently testing on same data as trained
+		population[model_i].fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
+								verbose=verbose)
+		accuracy[model_i] = test(X_T, y_T, population[model_i])[1]
+	logger.debug("Models tested.")
+	return accuracy  # Currently testing on same data as trained
 
 
-# def train_test_single_gen(X, y, population, epochs, batch_size, validation_split, verbose):
-# 	logger.debug("Fitting models:")
-# 	for model in population:
-# 		model.fit(X,y,epochs=epochs,batch_size=batch_size,validation_split=validation_split,verbose=verbose);
-# 	logger.debug("Testing models:")
-# 	# return [test(X, y, population[i])[1] for i in range(len(population))] # Tests on same data as trained
-# 	return [test(X, y, population[model_i]  )[1] for model_i in range(len(population))] # Tests on same data as trained
-	# return [random.random() * 2 + 9 for i in range(len(population))]
+# scores = test(X, y, population[0][0])
+# print(scores)
+# print('Accuracy: {}'.format(scores[1]))
 
-	# scores = test(X, y, pop_data[0][0])
-	# print(scores)
-	# print('Accuracy: {}'.format(scores[1]))
+# population[0].fit(X,y,epochs=epochs,batch_size=batch_size,validation_split=validation_split,verbose=verbose);
+# score = test(X, y, population[0])
+# return [score]
 
-	# population[0].fit(X,y,epochs=epochs,batch_size=batch_size,validation_split=validation_split,verbose=verbose);
-	# score = test(X, y, population[0])
-	# return [score]
 
+<<<<<<< HEAD
 
 
 def train(X, y, pop_data, hyperparams, epochs=tf.constant(500, dtype=tf.int64), batch_size=tf.constant(5), validation_split=tf.constant(0.05), verbose=tf.constant(0)):
+=======
+def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
+		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
+>>>>>>> dev
 	# import NAS
-	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
-	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
+	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
+	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
-	for _ in range(hyperparams['generations']):
+	for _ in range(h_params['generations']):
 		logger.debug("Testing:")
+<<<<<<< HEAD
 		fitness = train_test_single_gen(X, y, pop_data[0], epochs, batch_size, validation_split, verbose) # Tests on same data as trained
 		logger.debug(fitness)
 		# # crossover - requires: pop_data, hyperparams, fitness		- returns: pop_data
@@ -221,17 +257,23 @@ def train(X, y, pop_data, hyperparams, epochs=tf.constant(500, dtype=tf.int64), 
 		pop_data[0][0].summary()
 	return pop_data
 
+=======
+		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
+		fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
+		logger.info(fitness)
+		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
+		# population = remake_pop(population) # Only uncomment when testing crossover methods
+		population = NAS.mutation(population, h_params, num_elites, base_output_dim)
+		clear_session()
+		population = remake_pop(population)
+		population['models'][0].summary()
+	return population
+>>>>>>> dev
 
 
 def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
-	return model.evaluate(X,y,verbose=verbose,batch_size=batch_size)
+	return model.evaluate(X, y, verbose=verbose, batch_size=batch_size)
 
-
-
-
-def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
-	# import NAS
-	return NAS.make_pop(output_dim=output_dim, input_shapes=input_shape, pop_size=pop_size, m_type=m_type)
 
 # model.compile(loss='mse',optimizer ='adam',metrics=['accuracy'])
 # model.fit(X,y,epochs=2000,batch_size=5,validation_split=0.05,verbose=0);
@@ -239,54 +281,72 @@ def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascad
 
 if __name__ == "__main__":
 	# Get data
+<<<<<<< HEAD
 	(x_train, y_train, x_test, y_test, output_dim, input_shape) = load_cifar10()
+=======
+	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
+>>>>>>> dev
 	logger.debug("global: " + str(base_output_dim))
 	logger.info("Data loaded...")
 	# quit(0)
+<<<<<<< HEAD
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 	# - crossover rate is useless because what purpose is there to randomly change between init_values? none. it's random and does not carry over information.
 	# hyperparams = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
+=======
+	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
+	# - crossover rate is useless because what purpose is there to randomly change between init_values? none.
+	# it's random and does not carry over information.
+	# h_params = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
+>>>>>>> dev
 
 	# to test structure mutations, and their crossover
-	# hyperparams = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+	# h_params = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 
-	 # to test layer mutations, and their crossover
-	# hyperparams = {'generations': 300, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+	# to test layer mutations, and their crossover
+	# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 	# Actually test algorithm
-	hyperparams = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
+	# h_params = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
-	# Build the model/pop
+	# Build a random model/pop
 	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
 	# make_random_model(output_dim, input_shape, model, random_init_values(), type="uni")
 	# make_random_model(output_dim, input_shape, model, random_init_values(), random_init_values(), type="cascaded")
 	# model.summary()
 
-	# binary specifications are useless if I don't perturb by bit
-	# pop_data = {0: population, 1: layers, 2: model_specifications, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
-	pop_data = init_pop(output_dim, input_shape, m_type="uni", pop_size=hyperparams['pop_size'])
-	pop_data[0][0].summary()
+	hyperparameters = None
 
+	# binary specifications are useless if I don't perturb by bits
+	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
+	if hyperparameters == None:
+		hyperparameters = {'generations': 15, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+	population['models'][0].summary()
 
+	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
+	                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
+<<<<<<< HEAD
 	X = x_train
 	y = y_train
 	pop_data = train(X, y, pop_data, hyperparams) # , epochs=tf.constant(10, dtype=tf.int64))
+=======
+	population['models'][0].summary()
+>>>>>>> dev
 
-	pop_data[0][0].summary()
+# quit(0)
 
-	# quit(0)
+# scores = test(x_test, y_test)
+# scores = test(X, y, population[0][0])
+# print(scores)
+# print('Accuracy: {}'.format(scores[1]))
+# hist = model.fit(X, y) # hist['loss']
 
-	# scores = test(x_test, y_test)
-	# scores = test(X, y, pop_data[0][0])
-	# print(scores)
-	# print('Accuracy: {}'.format(scores[1]))
-	# hist = model.fit(X, y) # hist['loss']
-
-
-	# import matplotlib.pyplot as plt
-	# predict=model.predict(X)
-	# plt.plot(y, abs(predict-y), 'C2')
-	# plt.ylim(ymax = 10, ymin = -1)
-	# plt.show()
-
+# import matplotlib.pyplot as plt
+# predict=model.predict(X)
+# plt.plot(y, abs(predict-y), 'C2')
+# plt.ylim(ymax = 10, ymin = -1)
+# plt.show()
