@@ -188,6 +188,11 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 # score = test(X, y, population[0])
 # return [score]
 
+def save_models(population, generation):
+	for model_i in range(len(population["models"])):
+		model = population['models'][model_i]
+		model.save("./models/gen_" + str(generation) + "model_" + str(model_i) + ".h5")
+
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
 		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
