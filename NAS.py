@@ -8,6 +8,7 @@ from lstm import make_uni_LSTM
 from lstm import make_bi_LSTM
 from lstm import make_cascaded_LSTM
 from lstm import make_Dense
+from lstm import make_2d_cnn
 from lstm import random_init_values
 from math import ceil
 # from lstm import mutate_init_values
@@ -36,6 +37,7 @@ logger = logging.getLogger("NAS")
 
 def make_model(model_i, model=None, input_shapes=None, layer_types=None, layer_specs=None):
 	# TODO: test2
+	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3}
 	model = Sequential() if model is None else model
 	for layer_i in range(len(layer_types[model_i])):
 		not_final_layer = (layer_i != len(layer_types[model_i]) - 1)
@@ -48,8 +50,13 @@ def make_model(model_i, model=None, input_shapes=None, layer_types=None, layer_s
 			(a, b) = make_cascaded_LSTM(layer_specs[model_i][layer_i][4], input_shapes[model_i][layer_i], init_values=layer_specs[model_i][layer_i], return_sequences=not_final_layer)
 			model.add(a)
 			model.add(b)
-		elif layer == 3:
-			model.add(make_Dense(layer_specs[model_i][layer_i][4], init_values=layer_specs[model_i][layer_i])) # pop_spec does have a value, because it's never not created
+		# elif layer == 3:
+		# 	(a, b, c) = make_2d_cnn(layer_specs[model_i][layer_i][4], input_shapes[model_i][layer_i], init_values=layer_specs[model_i][layer_i])
+		# 	model.add(a)
+		# 	model.add(b)
+		# 	model.add(c)
+		elif layer == len(m_type_dict):
+			model.add(make_Dense(layer_specs[model_i][layer_i][4], input_shapes[model_i][layer_i], init_values=layer_specs[model_i][layer_i])) # pop_spec does have a value, because it's never not created
 	model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
 
 	return model
@@ -59,7 +66,7 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 	"""
 		Returns an array of models consisting of a single LSTM layer followed by a single Dense layer.
 	"""
-	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2}
+	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3}
 	model_type = m_type_dict[m_type]
 	models = [Sequential() for _ in range(pop_size)]
 
@@ -69,8 +76,9 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 			model = models[model_i]
 			models[model_i] = make_model(model_i, model=model, input_shapes=input_shapes, layer_types=layer_types, layer_specs=layer_specs)
 	else:
-		new_input_shapes = [[input_shapes, (None, output_dim)] for _ in range(pop_size)]
-		layer_types = [[model_type, 3] for _ in range(pop_size)]
+		# new_input_shapes = [[input_shapes, (None, output_dim)] for _ in range(pop_size)]
+		new_input_shapes = [[input_shapes, input_shapes] for _ in range(pop_size)]
+		layer_types = [[model_type, len(m_type_dict)] for _ in range(pop_size)]
 		layer_specs = [[random_init_values(output_dim=output_dim*10), random_init_values("sigmoid", "normal", None, output_dim=output_dim)] for _ in range(pop_size)]
 		for model_i in range(pop_size):
 			model = models[model_i]
@@ -82,10 +90,17 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 				(a, b) = make_cascaded_LSTM(layer_specs[model_i][0][4], input_shapes, init_values=layer_specs[model_i][0], return_sequences=False)
 				model.add(a)
 				model.add(b)
-			model.add(make_Dense(layer_specs[model_i][1][4], init_values=layer_specs[model_i][1]))
+			# elif m_type == "conv":
+			# 	(a, b, c) = make_2d_cnn(layer_specs[model_i][0][4], input_shapes, init_values=layer_specs[model_i][0], return_sequences=False)
+			# 	model.add(a)
+			# 	model.add(b)
+			# 	model.add(c)
+			# model.add(make_Dense(layer_specs[model_i][1][4], init_values=layer_specs[model_i][1]))
+			model.add(make_Dense(output_dim, input_shapes, init_values=layer_specs[model_i][1]))
 			# model.add(make_Dense(layer_specs[model_i][2][4], init_values=layer_specs[model_i][2] ))
 			# model.compile(loss='mse',optimizer ='adam',metrics=['accuracy'])
 			model.compile(loss="mean_absolute_error",optimizer ='adam',metrics=['accuracy'])
+			# model.build(input_shape=input_shapes)
 
 		# TODO: make pop_binary_specifications
 		# output_dims = new_output_dims
@@ -194,7 +209,7 @@ def add_layer(population, model_i, layer_i, layer_type):
 	output_dim = population['layer_specs'][model_i][layer_i][4]
 	num_layer_types = len(population['layer_specs'][model_i])
 	old_input_shape = population['input_shapes'][model_i][layer_i]
-	new_input_shape = (old_input_shape[1], output_dim)
+	new_input_shape = [old_input_shape[0], old_input_shape[1], output_dim]
 
 	layer_types = [[] for _ in range(num_layer_types + 1)]
 	layer_specs = [('', '', '', 0.0, 0) for _ in range(num_layer_types + 1)]
@@ -226,15 +241,14 @@ def add_layer(population, model_i, layer_i, layer_type):
 
 
 def mutate(model_i, layer_i, population, h_params, base_output_dim):
-
-	if random.random() < h_params['structure_rate']:
+	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3}
+	if random.random() < h_params['structure_rate']: # and population['layer_types'][model_i][layer_i] != m_type_dict['conv']:
 		'''
 			Structure is added instead of altering the model's existing architecture
 			Everything changes: change model layer_specs, input shapes, layer_types, then remake model to change population
 		'''
-		m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2}
 		model_type = m_type_dict[population['m_type']]
-		l_type = random.choice([model_type, 3])
+		l_type = random.choice([model_type, len(m_type_dict)])
 
 		population = add_layer(population, model_i, layer_i, l_type)
 
@@ -245,7 +259,7 @@ def mutate(model_i, layer_i, population, h_params, base_output_dim):
 			This is because model_layer_specs shows each layer's composition, and we are changing a single layer_types' composition.
 			TODO: instead of random values, look into minor adjustments
 		"""
-		change = random.choice([0,1,2,3,4])
+		change = random.choice(range(1,5))
 		# change = 4
 		layer_specs = [i for i in population['layer_specs'][model_i][layer_i]]
 		logger.debug(layer_specs)
