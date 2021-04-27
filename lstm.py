@@ -320,14 +320,14 @@ if __name__ == "__main__":
 	# binary specifications are useless if I don't perturb by bits
 	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	if hyperparameters == None:
-		hyperparameters = {'generations': 15, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 	population['models'][0].summary()
 
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-	                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
 <<<<<<< HEAD
 	X = x_train
