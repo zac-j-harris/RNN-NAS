@@ -209,7 +209,8 @@ def add_layer(population, model_i, layer_i, layer_type):
 	output_dim = population['layer_specs'][model_i][layer_i][4]
 	num_layer_types = len(population['layer_specs'][model_i])
 	old_input_shape = population['input_shapes'][model_i][layer_i]
-	new_input_shape = [old_input_shape[0], old_input_shape[1], output_dim]
+	# new_input_shape = [old_input_shape[0], old_input_shape[1], output_dim]
+	new_input_shape = [old_input_shape[1], output_dim]
 
 	layer_types = [[] for _ in range(num_layer_types + 1)]
 	layer_specs = [('', '', '', 0.0, 0) for _ in range(num_layer_types + 1)]
