@@ -50,30 +50,29 @@ def load_cifar10(_=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 1
 	input_shape = (3, 1024)
-	# input_shape = (1, 3072)
 
-	# (x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
-	# x_t = x_t.reshape((len(x_t), 3, 1024))
-	# x_tst = x_tst.reshape((len(x_tst), 3, 1024))
+	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+	x_t = x_t.reshape((len(x_t), 3, 1024))
+	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
 
-	dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
-	train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
-	test_filename = "test_batch"
+	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
+	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+	# test_filename = "test_batch"
 	
-	train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	test_batch = unpickle(os.path.join(dirpath, test_filename))
+	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
+	# test_batch = unpickle(os.path.join(dirpath, test_filename))
 	
-	start = 0
-	end = 2
-	num_batches = 2
-	data_len = end - start
-	dtype = 'int8'
-	x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
-	                                     dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
-	y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
-	                                     dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
-	x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
-	y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
+	# start = 0
+	# end = 2
+	# num_batches = 2
+	# data_len = end - start
+	# dtype = 'int8'
+	# x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
+	#                                      dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
+	# y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
+	#                                      dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
+	# x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
+	# y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
 	
 	# logger.info(x_t.shape)
 
@@ -199,7 +198,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	for _ in range(h_params['generations']):
 		logger.debug("Testing:")
 		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
-		fitness = train_test_single_gen(X, y, X, y, population['models'], epochs, batch_size, validation_split, verbose)
+		fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
 		logger.info(fitness)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
 		# population = remake_pop(population) # Only uncomment when testing crossover methods
