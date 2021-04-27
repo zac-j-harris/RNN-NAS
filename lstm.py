@@ -12,11 +12,12 @@ from keras.layers import Activation
 from keras.layers import Bidirectional
 from keras.layers import Dense
 from keras.layers import LSTM
+from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
 from keras.models import Sequential
 from keras.backend import clear_session
 
 # notset > debug > info > warning > error > critical
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 # logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Main")
 
@@ -51,30 +52,34 @@ def load_cifar10(_=__cifar10__()):
 	base_output_dim = 1
 	input_shape = (3, 1024)
 
-	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
-	x_t = x_t.reshape((len(x_t), 3, 1024))
-	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
+	# (x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+	# x_t = x_t.reshape((len(x_t), 3, 1024))
+	# x_tst = x_tst.reshape((len(x_tst), 3, 1024))
 
-	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
-	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
-	# test_filename = "test_batch"
+	dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
+	train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+	test_filename = "test_batch"
 	
-	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	# test_batch = unpickle(os.path.join(dirpath, test_filename))
+	train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
+	test_batch = unpickle(os.path.join(dirpath, test_filename))
 	
-	# start = 0
-	# end = 2
-	# num_batches = 2
-	# data_len = end - start
-	# dtype = 'int8'
-	# x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
-	#                                      dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
-	# y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
-	#                                      dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
-	# x_tst = np.asarray(test_batch[b'data'][start:end], dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
-	# y_tst = np.asarray(test_batch[b'labels'][start:end], dtype=dtype).reshape((data_len, 1))
+	start = 0
+	end = 1
+	num_batches = 2
+	data_len = end - start
+	dtype = 'float32'
+	x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
+	                                     dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
+	y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
+	                                     dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
+	x_tst = np.asarray(test_batch[b'data'][start:end], 
+										 dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
+	y_tst = np.asarray(test_batch[b'labels'][start:end], 
+										 dtype=dtype).reshape((data_len, 1))
 	
-	# logger.info(x_t.shape)
+	logger.info(x_t.shape)
+
+	# input_shape = (32, 32, 3)
 
 	return x_t, y_t, x_tst, y_tst, input_shape
 
@@ -121,9 +126,16 @@ def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequenc
 				 kernel_constraint=init_values[2], return_sequences=return_sequences))
 
 
-def make_Dense(output_dim, init_values=None):
+# def make_2d_cnn(output_dim, input_shape, init_values=None, return_sequences=False):
+# 	init_values = random_init_values() if init_values is None else init_values
+# 	new_input_shape = [int(input_shape[0] ** 0.5), int(input_shape[0] ** 0.5), input_shape[1]] if len(input_shape) == 2 else input_shape
+# 	return Reshape(target_shape=new_input_shape, input_shape=input_shape), Conv2D(filters=new_input_shape[2], kernel_size=1, activation=init_values[0], 
+# 		kernel_initializer=init_values[1], kernel_constraint=init_values[2]), Reshape(target_shape=(new_input_shape[1] ** 2, new_input_shape[2]))
+
+
+def make_Dense(output_dim, input_shape, init_values=None):
 	init_values = random_init_values() if init_values is None else init_values
-	return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+	return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
 				 kernel_constraint=init_values[2])
 
 
@@ -175,7 +187,7 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 	for model_i in range(len(population)):
 		population[model_i].fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
 								verbose=verbose)
-		accuracy[model_i] = test(X_T, y_T, population[model_i])[1]
+		accuracy[model_i] = test(X, y, population[model_i])[1]
 	logger.debug("Models tested.")
 	return accuracy  # Currently testing on same data as trained
 
@@ -188,6 +200,11 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 # score = test(X, y, population[0])
 # return [score]
 
+def save_models(population, generation):
+	for model_i in range(len(population["models"])):
+		model = population['models'][model_i]
+		model.save("./models/gen_" + str(generation) + "/model_" + str(model_i) + ".h5")
+
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
 		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
@@ -195,22 +212,27 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
-	for _ in range(h_params['generations']):
+	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
 		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
 		fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
 		logger.info(fitness)
+		save_models(population, gen)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
 		# population = remake_pop(population) # Only uncomment when testing crossover methods
 		population = NAS.mutation(population, h_params, num_elites, base_output_dim)
 		clear_session()
 		population = remake_pop(population)
+		population['models'][0].build()
 		population['models'][0].summary()
 	return population
 
 
 def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
-	return model.evaluate(X, y, verbose=verbose, batch_size=batch_size)
+	# model.summary()
+	# print(X.shape)
+	# print(y.shape)
+	return model.evaluate(x=X, y=y, verbose=verbose, batch_size=batch_size)
 
 
 # model.compile(loss='mse',optimizer ='adam',metrics=['accuracy'])
@@ -222,20 +244,6 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
 	logger.debug("global: " + str(base_output_dim))
 
-	# quit(0)
-	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
-	# - crossover rate is useless because what purpose is there to randomly change between init_values? none.
-	# it's random and does not carry over information.
-	# h_params = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
-
-	# to test structure mutations, and their crossover
-	# h_params = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
-
-	# to test layer mutations, and their crossover
-	# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
-
-	# Actually test algorithm
-	# h_params = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
 	# Build a random model/pop
 	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
@@ -243,19 +251,26 @@ if __name__ == "__main__":
 	# make_random_model(output_dim, input_shape, model, random_init_values(), random_init_values(), type="cascaded")
 	# model.summary()
 
-	hyperparameters = None
+	hyperparameters = None # future implementation of reading h_params from IO
 
-	# binary specifications are useless if I don't perturb by bits
-	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	if hyperparameters == None:
+<<<<<<< HEAD
 		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+=======
+		hyperparameters = {'generations': 2, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+>>>>>>> dev
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 	population['models'][0].summary()
 
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
+<<<<<<< HEAD
 	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+=======
+	                            epochs=tf.constant(1000, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+>>>>>>> dev
 
 	population['models'][0].summary()
 
