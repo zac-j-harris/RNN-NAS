@@ -48,7 +48,7 @@ def load_cifar10(_=__cifar10__()):
 		y_train, y_test: uint8 arrays of category labels (integers in range 0-9) each with shape (num_samples, 1).
 	"""
 	global base_output_dim
-	base_output_dim = 10
+	base_output_dim = 1
 	input_shape = (3, 1024)
 	# input_shape = (1, 3072)
 
@@ -157,10 +157,11 @@ def make_Dense(output_dim, init_values=None):
 
 def remake_pop(population):
 	# import NAS
-	ind_last = len(population['models'])-1
-	for model_i in range(len(population['models'])):
-		population['input_shapes'][model_i][ind_last] = (None, 1)
-		population['layer_specs'][model_i][ind_last] = random_init_values("linear", "uniform", None, None, 1)
+
+	# for model_i in range(len(population['models'])):
+	# 	ind_last = len(population['layer_types'][model_i])-1
+	# 	population['input_shapes'][model_i][ind_last] = (None, base_output_dim)
+	# 	population['layer_specs'][model_i][ind_last] = random_init_values("sigmoid", "normal", None, output_dim=base_output_dim)
 	return NAS.make_pop(input_shapes=population['input_shapes'], layer_types=population['layer_types'], layer_specs=population['layer_specs'],
 						pop_size=population['pop_size'], m_type=population['m_type'])
 
