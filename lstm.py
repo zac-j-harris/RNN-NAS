@@ -38,7 +38,7 @@ def __cifar10__():
 	global base_output_dim
 	base_output_dim = 10
 
-<<<<<<< HEAD
+
 def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	global base_output_dim
 	base_output_dim = 10
@@ -58,7 +58,7 @@ def load_cifar10(waste_of_space_cifar10=__cifar10__()):
 	# dirpath="/Users/zacharris/Datasets/cifar10/cifar10_batches"
 	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
 	# test_filename="test_batch"
-=======
+
 
 def load_cifar10(_=__cifar10__()):
 	"""
@@ -75,7 +75,7 @@ def load_cifar10(_=__cifar10__()):
 	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
 	x_t = x_t.reshape((len(x_t), 3, 1024))
 	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
->>>>>>> dev
+
 
 	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
 	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
@@ -83,7 +83,7 @@ def load_cifar10(_=__cifar10__()):
 	
 	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
 	# test_batch = unpickle(os.path.join(dirpath, test_filename))
-<<<<<<< HEAD
+
 
 	# start = 0
 	# end = 10
@@ -97,7 +97,7 @@ def load_cifar10(_=__cifar10__()):
 
 	# logger.info(x_train.shape)
 	# logger.debug("global0: " + str(base_output_dim))
-=======
+
 	
 	# start = 0
 	# end = 2
@@ -114,7 +114,7 @@ def load_cifar10(_=__cifar10__()):
 	# logger.info(x_t.shape)
 
 	return x_t, y_t, x_tst, y_tst, input_shape
->>>>>>> dev
+
 
 
 # quit(0)
@@ -227,21 +227,15 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 # return [score]
 
 
-<<<<<<< HEAD
 
-
-def train(X, y, pop_data, hyperparams, epochs=tf.constant(500, dtype=tf.int64), batch_size=tf.constant(5), validation_split=tf.constant(0.05), verbose=tf.constant(0)):
-=======
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
 		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
->>>>>>> dev
 	# import NAS
 	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
 	for _ in range(h_params['generations']):
 		logger.debug("Testing:")
-<<<<<<< HEAD
 		fitness = train_test_single_gen(X, y, pop_data[0], epochs, batch_size, validation_split, verbose) # Tests on same data as trained
 		logger.debug(fitness)
 		# # crossover - requires: pop_data, hyperparams, fitness		- returns: pop_data
@@ -257,7 +251,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		pop_data[0][0].summary()
 	return pop_data
 
-=======
+
 		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
 		fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
 		logger.info(fitness)
@@ -268,7 +262,6 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		population = remake_pop(population)
 		population['models'][0].summary()
 	return population
->>>>>>> dev
 
 
 def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
@@ -281,24 +274,22 @@ def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
 
 if __name__ == "__main__":
 	# Get data
-<<<<<<< HEAD
+
 	(x_train, y_train, x_test, y_test, output_dim, input_shape) = load_cifar10()
-=======
+
 	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
->>>>>>> dev
+
 	logger.debug("global: " + str(base_output_dim))
 	logger.info("Data loaded...")
 	# quit(0)
-<<<<<<< HEAD
+
 	# hyperparams = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 	# - crossover rate is useless because what purpose is there to randomly change between init_values? none. it's random and does not carry over information.
 	# hyperparams = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
-=======
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
 	# - crossover rate is useless because what purpose is there to randomly change between init_values? none.
 	# it's random and does not carry over information.
 	# h_params = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
->>>>>>> dev
 
 	# to test structure mutations, and their crossover
 	# h_params = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
@@ -329,13 +320,10 @@ if __name__ == "__main__":
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
 	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
-<<<<<<< HEAD
 	X = x_train
 	y = y_train
 	pop_data = train(X, y, pop_data, hyperparams) # , epochs=tf.constant(10, dtype=tf.int64))
-=======
 	population['models'][0].summary()
->>>>>>> dev
 
 # quit(0)
 
