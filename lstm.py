@@ -222,20 +222,6 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
 	logger.debug("global: " + str(base_output_dim))
 
-	# quit(0)
-	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1} 
-	# - crossover rate is useless because what purpose is there to randomly change between init_values? none.
-	# it's random and does not carry over information.
-	# h_params = {'generations': 2, 'pop_size': 2, 'mutation_rate': 0.1, 'elitism_rate': 0.1, 'structure_rate': 0.1}
-
-	# to test structure mutations, and their crossover
-	# h_params = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 1.0}
-
-	# to test layer mutations, and their crossover
-	# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'elitism_rate': 0.1, 'structure_rate': 0.0}
-
-	# Actually test algorithm
-	# h_params = {'generations': 300, 'pop_size': 150, 'mutation_rate': 0.3, 'elitism_rate': 0.1, 'structure_rate': 0.1}
 
 	# Build a random model/pop
 	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
