@@ -55,7 +55,7 @@ def make_model(model_i, model=None, input_shapes=None, layer_types=None, layer_s
 	return model
 
 
-def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=None, pop_binary_specifications=None, pop_size=10, m_type=None):
+def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=None, pop_size=10, m_type=None):
 	"""
 		Returns an array of models consisting of a single LSTM layer followed by a single Dense layer.
 	"""
@@ -69,10 +69,9 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 			model = models[model_i]
 			models[model_i] = make_model(model_i, model=model, input_shapes=input_shapes, layer_types=layer_types, layer_specs=layer_specs)
 	else:
-		new_input_shapes = [[input_shapes, (None, output_dim), (None, 1)] for _ in range(pop_size)]
-		layer_types = [[model_type, 3, 3] for _ in range(pop_size)]
-		layer_specs = [[random_init_values(output_dim=output_dim), random_init_values("sigmoid", "normal", None, output_dim=output_dim), 
-						random_init_values("linear", "uniform", None, None, 1)] for _ in range(pop_size)]
+		new_input_shapes = [[input_shapes, (None, output_dim)] for _ in range(pop_size)]
+		layer_types = [[model_type, 3] for _ in range(pop_size)]
+		layer_specs = [[random_init_values(output_dim=output_dim*10), random_init_values("sigmoid", "normal", None, output_dim=output_dim)] for _ in range(pop_size)]
 		for model_i in range(pop_size):
 			model = models[model_i]
 			if m_type=="uni":
@@ -83,8 +82,8 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 				(a, b) = make_cascaded_LSTM(layer_specs[model_i][0][4], input_shapes, init_values=layer_specs[model_i][0], return_sequences=False)
 				model.add(a)
 				model.add(b)
-			model.add(make_Dense(layer_specs[model_i][0][4], init_values=layer_specs[model_i][1]))
-			model.add(make_Dense(1, init_values=layer_specs[model_i][2] ))
+			model.add(make_Dense(layer_specs[model_i][1][4], init_values=layer_specs[model_i][1]))
+			# model.add(make_Dense(layer_specs[model_i][2][4], init_values=layer_specs[model_i][2] ))
 			# model.compile(loss='mse',optimizer ='adam',metrics=['accuracy'])
 			model.compile(loss="mean_absolute_error",optimizer ='adam',metrics=['accuracy'])
 
