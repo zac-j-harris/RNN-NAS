@@ -231,8 +231,6 @@ if __name__ == "__main__":
 
 	hyperparameters = None
 
-	# binary specifications are useless if I don't perturb by bits
-	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	if hyperparameters == None:
 		hyperparameters = {'generations': 15, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
