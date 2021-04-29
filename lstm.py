@@ -187,7 +187,7 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 	for model_i in range(len(population)):
 		population[model_i].fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
 								verbose=verbose)
-		accuracy[model_i] = test(X, y, population[model_i])[1]
+		accuracy[model_i] = test(X_T, y_T, population[model_i])[1]
 	logger.debug("Models tested.")
 	return accuracy  # Currently testing on same data as trained
 
@@ -261,7 +261,7 @@ if __name__ == "__main__":
 	population['models'][0].summary()
 
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-	                            epochs=tf.constant(1000, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
 	population['models'][0].summary()
 
