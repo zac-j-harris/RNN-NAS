@@ -254,7 +254,7 @@ if __name__ == "__main__":
 	hyperparameters = None # future implementation of reading h_params from IO
 
 	if hyperparameters == None:
-		hyperparameters = {'generations': 2, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 50, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
