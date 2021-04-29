@@ -254,31 +254,14 @@ if __name__ == "__main__":
 	hyperparameters = None # future implementation of reading h_params from IO
 
 	if hyperparameters == None:
-<<<<<<< HEAD
-<<<<<<< HEAD
-		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
-=======
-		hyperparameters = {'generations': 2, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-=======
 		hyperparameters = {'generations': 50, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
->>>>>>> dev
 		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
->>>>>>> dev
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 	population['models'][0].summary()
 
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-<<<<<<< HEAD
-<<<<<<< HEAD
-	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
-=======
-	                            epochs=tf.constant(1000, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
->>>>>>> dev
-=======
 	                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
->>>>>>> dev
 
 	population['models'][0].summary()
 
