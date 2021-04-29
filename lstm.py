@@ -261,7 +261,7 @@ if __name__ == "__main__":
 	population['models'][0].summary()
 
 	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-	                            epochs=tf.constant(500, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+	                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
 	population['models'][0].summary()
 
