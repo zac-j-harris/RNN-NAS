@@ -15,7 +15,7 @@ from keras.layers import LSTM
 from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
 from keras.models import Sequential
 from keras.backend import clear_session
-
+# import gym
 # notset > debug > info > warning > error > critical
 logging.basicConfig(level=logging.ERROR)
 # logging.basicConfig(level=logging.INFO)
@@ -40,7 +40,7 @@ def __cifar10__():
 	base_output_dim = 10
 
 
-def load_cifar10(_=__cifar10__()):
+def load_cifar10(type="file", _=__cifar10__()):
 	"""
 		Tuple of Numpy arrays: (x_train, y_train), (x_test, y_test).
 		x_train, x_test: uint8 arrays of RGB image data with shape (num_samples, 3, 32, 32)
@@ -52,34 +52,37 @@ def load_cifar10(_=__cifar10__()):
 	base_output_dim = 1
 	input_shape = (3, 1024)
 
-	(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
-	x_t = x_t.reshape((len(x_t), 3, 1024))
-	x_tst = x_tst.reshape((len(x_tst), 3, 1024))
+	if type!="file":
 
-	# dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
-	# train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
-	# test_filename = "test_batch"
-	
-	# train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
-	# test_batch = unpickle(os.path.join(dirpath, test_filename))
-	
-	# start = 0
-	# end = 1
-	# num_batches = 2
-	# data_len = end - start
-	# dtype = 'float32'
-	# x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
-	#                                      dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
-	# y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
-	#                                      dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
-	# x_tst = np.asarray(test_batch[b'data'][start:end], 
-	# 									 dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
-	# y_tst = np.asarray(test_batch[b'labels'][start:end], 
-	# 									 dtype=dtype).reshape((data_len, 1))
-	
-	# logger.info(x_t.shape)
+		(x_t, y_t), (x_tst, y_tst) = cifar10.load_data()
+		x_t = x_t.reshape((len(x_t), 3, 1024))
+		x_tst = x_tst.reshape((len(x_tst), 3, 1024))
 
-	# input_shape = (32, 32, 3)
+	else:
+		dirpath = "/Users/zacharris/Datasets/cifar10/cifar10_batches"
+		train_filenames = ["data_batch_" + str(i) for i in range(1, 6)]
+		test_filename = "test_batch"
+		
+		train_batches = [unpickle(os.path.join(dirpath, i)) for i in train_filenames]
+		test_batch = unpickle(os.path.join(dirpath, test_filename))
+		
+		start = 0
+		end = 1 # out of 10,000
+		num_batches = 2 # out of 5
+		data_len = end - start
+		dtype = 'float32'
+		x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
+		                                     dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
+		y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
+		                                     dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
+		x_tst = np.asarray(test_batch[b'data'][start:end], 
+											 dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
+		y_tst = np.asarray(test_batch[b'labels'][start:end], 
+											 dtype=dtype).reshape((data_len, 1))
+		
+		logger.info(x_t.shape)
+
+		# input_shape = (32, 32, 3)
 
 	return x_t, y_t, x_tst, y_tst, input_shape
 
@@ -101,7 +104,7 @@ def random_init_values(activation=None, initializer=None, constraint=None, dropo
 	if output_dim is None:
 		logger.debug("global2: " + str(base_output_dim))
 	output_dim = int(random.random() * 10.0 * base_output_dim) + base_output_dim if output_dim is None else output_dim
-	return activation, initializer, constraint, dropout, output_dim
+	return [activation, initializer, constraint, dropout, output_dim]
 
 
 def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
@@ -139,55 +142,31 @@ def make_Dense(output_dim, input_shape, init_values=None):
 				 kernel_constraint=init_values[2])
 
 
-# def make_random_model(output_dim, input_shape, model, random_init_vals,
-# 					  type=random.choice(["uni", "bi", "cascaded"])):
-# 	# number of layer_types
-# 	randrange = int(random.random() * 2) + 1
-
-# 	for i in range(randrange):
-# 		output_shape = random.randint(output_dim, output_dim * 10)
-# 		not_final_run = (i != randrange - 1)
-# 		if type == "uni":
-# 			model.add(make_uni_LSTM(output_shape, input_shape, init_values=random_init_vals,
-# 									return_sequences=not_final_run))  # True = many to many
-# 		elif type == "bi":
-# 			model.add(
-# 				make_bi_LSTM(output_shape, input_shape, init_values=random_init_vals, return_sequences=not_final_run))
-# 		elif type == "cascaded":
-# 			(a, b) = make_cascaded_LSTM(output_shape, input_shape, init_values=random_init_vals,
-# 										return_sequences=not_final_run)
-# 			model.add(a)
-# 			model.add(b)
-# 		input_shape = (input_shape[0], output_shape, 3)
-# 	model.add(make_Dense(input_shape[1], ("sigmoid", "normal", None)))
-# 	model.add(make_Dense(output_dim, ("sigmoid", "normal", None)))
 
 
-# model.add(make_Dense(10, kernel_initializer="normal",activation="linear"))
+# def remake_pop(population):
+# 	# import NAS
 
-
-def remake_pop(population):
-	# import NAS
-
-	# for model_i in range(len(population['models'])):
-	# 	ind_last = len(population['layer_types'][model_i])-1
-	# 	population['input_shapes'][model_i][ind_last] = (None, base_output_dim)
-	# 	population['layer_specs'][model_i][ind_last] = random_init_values("sigmoid", "normal", None, output_dim=base_output_dim)
-	return NAS.make_pop(input_shapes=population['input_shapes'], layer_types=population['layer_types'], layer_specs=population['layer_specs'],
-						pop_size=population['pop_size'], m_type=population['m_type'])
+# 	# for model_i in range(len(population['models'])):
+# 	# 	ind_last = len(population['layer_types'][model_i])-1
+# 	# 	population['input_shapes'][model_i][ind_last] = (None, base_output_dim)
+# 	# 	population['layer_specs'][model_i][ind_last] = random_init_values("sigmoid", "normal", None, output_dim=base_output_dim)
+# 	# return NAS.make_pop(input_shapes=population.get_input_shapes(), layer_types=population.get_layer_types(), layer_specs=population.get_layer_specs(),
+# 	# 					pop_size=len(population), m_type=population.get_m_type())
+# 	return NAS.make_pop(population)
 
 def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
 	# import NAS
 	return NAS.make_pop(output_dim=output_dim, input_shapes=input_shape, pop_size=pop_size, m_type=m_type)
 
 
-def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose):
+def run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose):
 	accuracy = [0 for _ in range(len(population))]
 	logger.debug("Fitting models:")
 	for model_i in range(len(population)):
-		population[model_i].fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
+		population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
 								verbose=verbose)
-		accuracy[model_i] = test(X_T, y_T, population[model_i])[1]
+		accuracy[model_i] = test(X_T, y_T, population[model_i].model)[1]
 	logger.debug("Models tested.")
 	return accuracy  # Currently testing on same data as trained
 
@@ -201,37 +180,33 @@ def train_test_single_gen(X, y, X_T, y_T, population, epochs, batch_size, valida
 # return [score]
 
 def save_models(population, generation):
-	for model_i in range(len(population["models"])):
-		model = population['models'][model_i]
+	for model_i in range(len(population)):
+		model = population[model_i].get_model()
 		model.save("./models/gen_" + str(generation) + "/model_" + str(model_i) + ".h5")
 
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
 		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
 	# import NAS
-	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
 		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
-		fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
+		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
 		logger.info(fitness)
 		save_models(population, gen)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
 		# population = remake_pop(population) # Only uncomment when testing crossover methods
-		population = NAS.mutation(population, h_params, num_elites, base_output_dim)
+		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
-		population = remake_pop(population)
-		population['models'][0].build()
-		population['models'][0].summary()
+		# population = remake_pop(population)
+		population[0].model.build()
+		population[0].get_model().summary()
 	return population
 
 
 def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
-	# model.summary()
-	# print(X.shape)
-	# print(y.shape)
 	return model.evaluate(x=X, y=y, verbose=verbose, batch_size=batch_size)
 
 
@@ -239,17 +214,51 @@ def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
 # model.fit(X,y,epochs=2000,batch_size=5,validation_split=0.05,verbose=0);
 
 
+def train_with_gym(population, steps=100):
+	# environment = gym.make('CartPole-v1')
+	# environment.reset()
+
+	base_output_dim = 2
+	inp_shape = (1, 4)
+
+
+	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+
+	for gen in range(h_params['generations']):
+		logger.debug("Testing:")
+		for model in population:
+			environment = gym.make('CartPole-v1')
+			state = environment.reset()
+			nest_state = np.reshape(state, (1, 4))
+			done = False
+			outs = [[] for _ in range(len(population))]
+			for dummy in range(steps):
+				state = next_state
+				y = model.model.predict(state)[1]
+				next_state, reward, done, _ = environment.step(environment.action_space.sample())
+				outs.append
+				next_state = np.reshape(state, (1, 4))
+		fitness = [  for model in population]
+		logger.info(fitness)
+		save_models(population, gen)
+		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
+
+		population = NAS.mutation(population, h_params, num_elites)
+		clear_session()
+	
+	population[0].model.build()
+	population[0].get_model().summary()
+
+
 if __name__ == "__main__":
 	# Get data
-	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
+	# (x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()
+
+	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
 
 
-	# Build a random model/pop
-	# Here is the LSTM-ready array with a shape of (100 samples, 5 time steps, 1 feature)
-	# make_random_model(output_dim, input_shape, model, random_init_values(), type="uni")
-	# make_random_model(output_dim, input_shape, model, random_init_values(), random_init_values(), type="cascaded")
-	# model.summary()
+	gym = True
 
 	hyperparameters = None # future implementation of reading h_params from IO
 
@@ -257,24 +266,17 @@ if __name__ == "__main__":
 		hyperparameters = {'generations': 50, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
-	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
-	population['models'][0].summary()
 
-	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-	                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
-	population['models'][0].summary()
+	if gym:
+		train_with_gym()
+	else:
 
-# quit(0)
+		population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+		population[0].get_model().summary()
 
-# scores = test(x_test, y_test)
-# scores = test(X, y, population[0][0])
-# print(scores)
-# print('Accuracy: {}'.format(scores[1]))
-# hist = model.fit(X, y) # hist['loss']
+		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
+		                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
-# import matplotlib.pyplot as plt
-# predict=model.predict(X)
-# plt.plot(y, abs(predict-y), 'C2')
-# plt.ylim(ymax = 10, ymin = -1)
-# plt.show()
+		population[0].get_model().summary()
+
