@@ -54,7 +54,7 @@ def get_elites(num_elites, pop_size, fitness):
 			elites[num_elites] = current_max
 		above_average[num_elites] = current_max
 		num_elites += 1
-	logger.info(elites)
+	# logger.info(elites)
 	return elites, above_average
 
 
