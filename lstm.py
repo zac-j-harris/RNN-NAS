@@ -15,9 +15,9 @@ from keras.layers import LSTM
 from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
 from keras.models import Sequential
 from keras.backend import clear_session
-# import gym
+import gym
 # notset > debug > info > warning > error > critical
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 # logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Main")
 
@@ -72,9 +72,9 @@ def load_cifar10(type="file", _=__cifar10__()):
 		data_len = end - start
 		dtype = 'float32'
 		x_t = np.concatenate([np.asarray(train_batches[i][b'data'][start:end],
-		                                     dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
+											 dtype=dtype).reshape((data_len, input_shape[0], input_shape[1])) for i in range(num_batches)])
 		y_t = np.concatenate([np.asarray(train_batches[i][b'labels'][start:end],
-		                                     dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
+											 dtype=dtype).reshape((data_len, 1)) for i in range(num_batches)])
 		x_tst = np.asarray(test_batch[b'data'][start:end], 
 											 dtype=dtype).reshape((data_len, input_shape[0], input_shape[1]))
 		y_tst = np.asarray(test_batch[b'labels'][start:end], 
@@ -214,31 +214,76 @@ def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
 # model.fit(X,y,epochs=2000,batch_size=5,validation_split=0.05,verbose=0);
 
 
-def train_with_gym(population, steps=100):
+def train_with_gym(h_params, steps=30):
 	# environment = gym.make('CartPole-v1')
+	environment = gym.make('CartPole-v1')
+	state_size = environment.observation_space.shape[0]
 	# environment.reset()
 
 	base_output_dim = 2
-	inp_shape = (1, 4)
+	inp_shape = (1, 1, state_size)
+	input_shape = (1, state_size)
 
 
-	population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+	population = init_pop(base_output_dim, input_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
-		for model in population:
-			environment = gym.make('CartPole-v1')
+
+		outs = [[] for _ in range(len(population))]
+
+		fitness = [0 for _ in range(len(population))]
+
+		for i in range(len(population)):
+			model = population[i]
 			state = environment.reset()
-			nest_state = np.reshape(state, (1, 4))
+			prev_state = None
+			prev_action = None
+			# state = environment.reset()
+			next_state = np.reshape(state, inp_shape)
 			done = False
-			outs = [[] for _ in range(len(population))]
-			for dummy in range(steps):
+			
+			# Get training data
+			for _ in range(steps):
 				state = next_state
-				y = model.model.predict(state)[1]
-				next_state, reward, done, _ = environment.step(environment.action_space.sample())
-				outs.append
-				next_state = np.reshape(state, (1, 4))
-		fitness = [  for model in population]
+				# environment.render()
+				if prev_state is not None:
+					model.model.train_on_batch(prev_state, prev_action)
+
+				orig_action = model.model.predict(state)[0]
+				action = np.argmax(orig_action)
+				# action = np.reshape([0.0, 0.0], (1,2))
+				# action[0][action_ind] = 1.0
+				next_state, reward, done, _ = environment.step(action)
+				next_state = np.reshape(next_state, inp_shape)
+
+				outs[i].append((state, action, reward, next_state, done))
+				prev_state = state
+				orig_action[0][action] = reward + np.amax(model.model.predict(state)[0])
+				prev_action = orig_action
+
+			steps = len(outs[0])
+			# Train the models
+			for state, action, reward, next_state, done in outs[i][:int(0.8 * steps)]:
+				target = reward
+				if not done:
+					target = reward + np.amax(model.model.predict(next_state)[0])
+				target_f = model.model.predict(state)[0]
+				# print(action)
+				# print(target_f)
+				target_f[0][action] = target
+				model.model.fit(x=state, y=target_f, epochs=1, verbose=0)
+
+			# Test the models
+			for state, action, reward, next_state, done in outs[i][int(0.8 * steps):]:
+				target = reward
+				if not done:
+					target = reward + np.amax(model.model.predict(next_state)[0])
+				target_f = model.model.predict(state)[0]
+				target_f[0][action] = target
+				acc = model.model.evaluate(x=state, y=target_f, verbose=0)[1]
+				fitness[i] += acc
+
 		logger.info(fitness)
 		save_models(population, gen)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
@@ -246,6 +291,7 @@ def train_with_gym(population, steps=100):
 		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
 	
+	environment.monitor.close()
 	population[0].model.build()
 	population[0].get_model().summary()
 
@@ -258,25 +304,25 @@ if __name__ == "__main__":
 	logger.debug("global: " + str(base_output_dim))
 
 
-	gym = True
+	gym_test = True
 
 	hyperparameters = None # future implementation of reading h_params from IO
 
 	if hyperparameters == None:
-		hyperparameters = {'generations': 50, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 
-	if gym:
-		train_with_gym()
+	if gym_test:
+		train_with_gym(hyperparameters)
 	else:
 
 		population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
 		population[0].get_model().summary()
 
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-		                            epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
+									epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=1)
 
 		population[0].get_model().summary()
 
