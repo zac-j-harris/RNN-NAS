@@ -94,9 +94,9 @@ class Model():
 			Updates population with new layer, but does not make new model
 		"""
 		# num_layer_types = len(population['layer_specs'][model_i])
-		# old_input_shape = population['input_shapes'][model_i][layer_i]
-		# new_input_shape = [old_input_shape[0], old_input_shape[1], output_dim]
-		new_layer_input_shape = [old_input_shape[1], output_dim]
+		# old_input_shape = self.input_shapes[layer_i]
+		new_input_shape = [self.input_shapes[layer_i][0], self.input_shapes[layer_i][0], self.base_output_dim]
+		new_layer_input_shape = [self.input_shapes[layer_i][1], self.base_output_dim]
 
 		new_layer_types = [[] for _ in range(len(self.layer_types) + 1)]
 		new_layer_specs = [['', '', '', 0.0, 0] for _ in range(len(self.layer_types) + 1)]
@@ -110,7 +110,7 @@ class Model():
 				new_input_shapes[i] = new_input_shape
 			else:
 				if i == layer_i + 2:
-					input_shapes[i] = (new_input_shapes[i - 1][1], new_layer_specs[i - 1][4])
+					new_input_shapes[i] = (new_input_shapes[i - 1][1], new_layer_specs[i - 1][4])
 				else:
 					new_input_shapes[i] = self.input_shapes[i - delta]
 				new_layer_types[i] = self.layer_types[i - delta]
