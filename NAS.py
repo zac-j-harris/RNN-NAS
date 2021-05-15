@@ -4,12 +4,6 @@
 
 import random
 from keras.models import Sequential
-from lstm import make_uni_LSTM
-from lstm import make_bi_LSTM
-from lstm import make_cascaded_LSTM
-from lstm import make_Dense
-# from lstm import make_2d_cnn
-from lstm import random_init_values
 from math import ceil
 from Model import Model
 # from lstm import mutate_init_values
@@ -17,10 +11,7 @@ import random, logging
 
 logger = logging.getLogger("NAS")
 
-class NAS():
 
-	def __init__():
-		pass
 
 
 def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=None, pop_size=10, m_type=None, population=None):
