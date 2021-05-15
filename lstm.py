@@ -179,68 +179,73 @@ def train_with_gym(h_params, steps=30):
 
 		fitness = [0 for _ in range(len(population))]
 
-		for model_i in range(len(population)):
-			model = population[model_i]
-			state = env.reset()
-			next_state = np.reshape(state, input_shape)
-			prev_state = None
-			prev_action = None
-			done = False
-			# Perhaps make fitness how long each model lasted? Cap of some time limit like 100. Random perturbations? Training on data with current and next 
-			
-			# Get training data
-			for _ in range(steps):
-				state = next_state
-				# env.render()
+		for _ in range(hyperparameters['num_batches']):
 
-				if prev_state is not None:
-					model.model.train_on_batch(np.append(prev_state, state, axis=1), np.reshape(prev_action, (1, 2)))
-					# np.reshape(target_f, (1, 2))
-					orig_action = model.model.predict(np.append(prev_state, state, axis=1))[0]
-				else:
-					orig_action = np.asarray([0.0, 0.0])
-					# print(orig_action.shape)
-					orig_action[random.choice([0, 1])] = 1.0
-				# print(orig_action)
-				action = np.argmax(orig_action)
-				# action = np.reshape([0.0, 0.0], (1,2))
-				# action[0][action_ind] = 1.0
-				# print(action)
-				next_state, reward, done, _ = env.step(action)
-				# quit(0)
-				next_state = np.reshape(next_state, input_shape)
+			for model_i in range(len(population)):
+				model = population[model_i]
+				state = env.reset()
+				next_state = np.reshape(state, input_shape)
+				prev_state = None
+				prev_action = None
+				done = False
+				# Perhaps make fitness how long each model lasted? Cap of some time limit like 100. Random perturbations? Training on data with current and next 
+				
+				# Get training data
+				while not done:
+				# for _ in range(steps):
+					state = next_state
+					# env.render()
 
-				if prev_state is not None:
-					outs[model_i].append((state, action, reward, next_state, done))
-				prev_state = state
-				orig_action[action] = reward + np.amax(orig_action)
-				prev_action = orig_action
+					if prev_state is not None:
+						model.model.train_on_batch(np.append(prev_state, state, axis=1), np.reshape(prev_action, (1, 2)))
+						# np.reshape(target_f, (1, 2))
+						orig_action = model.model.predict(np.append(prev_state, state, axis=1))[0]
+					else:
+						orig_action = np.asarray([0.0, 0.0])
+						# print(orig_action.shape)
+						orig_action[random.choice([0, 1])] = 1.0
+					# print(orig_action)
+					action = np.argmax(orig_action)
+					# action = np.reshape([0.0, 0.0], (1,2))
+					# action[0][action_ind] = 1.0
+					# print(action)
+					next_state, reward, done, _ = env.step(action)
+					# quit(0)
+					next_state = np.reshape(next_state, input_shape)
 
-			steps = len(outs[0])
-			# # Train the models
-			# for state, action, reward, next_state, done in outs[model_i][:int(0.8 * steps)]:
-			# 	target = reward
-			# 	target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
-			# 	if not done:
-			# 		target = reward + np.amax(target_f)
-			# 	# target_f = model.model.predict(state)[0]
-			# 	# print(action)
-			# 	# print(target_f)
-			# 	target_f[action] = target
-			# 	x = np.append(state, next_state, axis=1)
-			# 	# print(x.shape)
-			# 	# quit(0)
-			# 	model.model.fit(x=x, y=np.reshape(target_f, (1, 2)), epochs=1, verbose=0)
+					if prev_state is not None:
+						outs[model_i].append((state, action, reward, next_state, done))
+					prev_state = state
+					orig_action[action] = reward + np.amax(orig_action)
+					prev_action = orig_action
 
-			# 
-			for state, action, reward, next_state, done in outs[model_i][int(0.8 * steps):]:
-				# target = reward
-				# target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
-				# if not done:
-				# 	target = reward + np.amax(target_f)
-				# target_f[action] = target
-				# acc = model.model.evaluate(x=np.append(state, next_state, axis=1), y=np.reshape(target_f, (1, 2)), verbose=0)[1]
-				fitness[model_i] += reward
+				steps = len(outs[0])
+				# # Train the models
+				# for state, action, reward, next_state, done in outs[model_i][:int(0.8 * steps)]:
+				# 	target = reward
+				# 	target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
+				# 	if not done:
+				# 		target = reward + np.amax(target_f)
+				# 	# target_f = model.model.predict(state)[0]
+				# 	# print(action)
+				# 	# print(target_f)
+				# 	target_f[action] = target
+				# 	x = np.append(state, next_state, axis=1)
+				# 	# print(x.shape)
+				# 	# quit(0)
+				# 	model.model.fit(x=x, y=np.reshape(target_f, (1, 2)), epochs=1, verbose=0)
+
+				# 
+				for state, action, reward, next_state, done in outs[model_i][int(0.8 * steps):]:
+					# target = reward
+					# target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
+					# if not done:
+					# 	target = reward + np.amax(target_f)
+					# target_f[action] = target
+					# acc = model.model.evaluate(x=np.append(state, next_state, axis=1), y=np.reshape(target_f, (1, 2)), verbose=0)[1]
+					# fitness[model_i] += acc
+					# 
+					fitness[model_i] += reward
 
 
 
@@ -271,9 +276,9 @@ if __name__ == "__main__":
 	hyperparameters = None # future implementation of reading h_params from IO
 
 	if hyperparameters == None:
-		# hyperparameters = {'generations': 10, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 30, 'pop_size': 5, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1, 'num_batches': 10}
 		# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
-		hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 
 	if gym_test:
