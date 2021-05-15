@@ -8,12 +8,6 @@ import pickle
 import random
 import tensorflow as tf
 from keras.datasets import cifar10
-from keras.layers import Activation
-from keras.layers import Bidirectional
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
-from keras.models import Sequential
 from keras.backend import clear_session
 import gym
 # notset > debug > info > warning > error > critical
@@ -90,61 +84,9 @@ def load_cifar10(type="file", _=__cifar10__()):
 # quit(0)
 
 
-def random_init_values(activation=None, initializer=None, constraint=None, dropout=None, output_dim=None):
-	global base_output_dim
-
-	activation = random.choice({0: "softmax", 1: "softplus", 2: "relu", 3: "tanh", 4: "sigmoid", 5: "hard_sigmoid",
-								6: "linear"}) if activation is None else activation
-	initializer = random.choice({0: "zero", 1: "uniform", 2: "lecun_uniform", 3: "glorot_normal", 4: "glorot_uniform",
-								 5: "normal", 6: "he_normal", 7: "he_uniform"}) if initializer is None else initializer
-	constraint = random.choice(
-		{0: "maxnorm", 1: "nonneg", 2: "unitnorm", 3: None}) if constraint == 0 else constraint
-	dropout = random.choice(
-		{0: 0.0, 1: 0.1, 2: 0.15, 3: 0.2, 4: 0.25, 5: 0.3, 6: 0.4, 7: 0.5}) if dropout is None else dropout
-	if output_dim is None:
-		logger.debug("global2: " + str(base_output_dim))
-	output_dim = int(random.random() * 10.0 * base_output_dim) + base_output_dim if output_dim is None else output_dim
-	return [activation, initializer, constraint, dropout, output_dim]
-
-
-def make_uni_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
-	init_values = random_init_values() if init_values is None else init_values
-	return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
-				kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
-
-
-def make_bi_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
-	init_values = random_init_values() if init_values is None else init_values
-	return Bidirectional(
-		LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2],
-			 return_sequences=return_sequences), input_shape=input_shape)
-
-
-def make_cascaded_LSTM(output_dim, input_shape, init_values=None, return_sequences=False):
-	init_values = random_init_values() if init_values is None else init_values
-	return (Bidirectional(
-		LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2],
-			 return_sequences=True), input_shape=input_shape),
-			LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1],
-				 kernel_constraint=init_values[2], return_sequences=return_sequences))
-
-
-# def make_2d_cnn(output_dim, input_shape, init_values=None, return_sequences=False):
-# 	init_values = random_init_values() if init_values is None else init_values
-# 	new_input_shape = [int(input_shape[0] ** 0.5), int(input_shape[0] ** 0.5), input_shape[1]] if len(input_shape) == 2 else input_shape
-# 	return Reshape(target_shape=new_input_shape, input_shape=input_shape), Conv2D(filters=new_input_shape[2], kernel_size=1, activation=init_values[0], 
-# 		kernel_initializer=init_values[1], kernel_constraint=init_values[2]), Reshape(target_shape=(new_input_shape[1] ** 2, new_input_shape[2]))
-
-
-def make_Dense(output_dim, input_shape, init_values=None):
-	init_values = random_init_values() if init_values is None else init_values
-	return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
-				 kernel_constraint=init_values[2])
-
-
-
-
-# def remake_pop(population):
+def remake_pop(population):
+	for model in population:
+		model.reinit()
 # 	# import NAS
 
 # 	# for model_i in range(len(population['models'])):
@@ -192,15 +134,20 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
-		# fitness = train_test_single_gen(X, y, X_T, y_T, population['models'], epochs, batch_size, validation_split, verbose)
+
+
+
+		
 		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
+		
 		logger.info(fitness)
+		
 		save_models(population, gen)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
-		# population = remake_pop(population) # Only uncomment when testing crossover methods
+		
 		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
-		# population = remake_pop(population)
+
 		population[0].model.build()
 		population[0].get_model().summary()
 	return population
@@ -215,17 +162,15 @@ def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
 
 
 def train_with_gym(h_params, steps=30):
-	# environment = gym.make('CartPole-v1')
-	environment = gym.make('CartPole-v1')
-	state_size = environment.observation_space.shape[0]
-	# environment.reset()
+	env = gym.make('CartPole-v1')
+	state_size = env.observation_space.shape[0]
+	env.reset()
 
 	base_output_dim = 2
-	inp_shape = (1, 1, state_size)
-	input_shape = (1, state_size)
+	input_shape = (1, 1, state_size)
 
 
-	population = init_pop(base_output_dim, input_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+	population = init_pop(base_output_dim, input_shape=(2, state_size), m_type="uni", pop_size=hyperparameters['pop_size'])
 
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
@@ -234,66 +179,83 @@ def train_with_gym(h_params, steps=30):
 
 		fitness = [0 for _ in range(len(population))]
 
-		for i in range(len(population)):
-			model = population[i]
-			state = environment.reset()
+		for model_i in range(len(population)):
+			model = population[model_i]
+			state = env.reset()
+			next_state = np.reshape(state, input_shape)
 			prev_state = None
 			prev_action = None
-			# state = environment.reset()
-			next_state = np.reshape(state, inp_shape)
 			done = False
+			# Perhaps make fitness how long each model lasted? Cap of some time limit like 100. Random perturbations? Training on data with current and next 
 			
 			# Get training data
 			for _ in range(steps):
 				state = next_state
-				# environment.render()
-				if prev_state is not None:
-					model.model.train_on_batch(prev_state, prev_action)
+				# env.render()
 
-				orig_action = model.model.predict(state)[0]
+				if prev_state is not None:
+					model.model.train_on_batch(np.append(prev_state, state, axis=1), np.reshape(prev_action, (1, 2)))
+					# np.reshape(target_f, (1, 2))
+					orig_action = model.model.predict(np.append(prev_state, state, axis=1))[0]
+				else:
+					orig_action = np.asarray([0.0, 0.0])
+					# print(orig_action.shape)
+					orig_action[random.choice([0, 1])] = 1.0
+				# print(orig_action)
 				action = np.argmax(orig_action)
 				# action = np.reshape([0.0, 0.0], (1,2))
 				# action[0][action_ind] = 1.0
-				next_state, reward, done, _ = environment.step(action)
-				next_state = np.reshape(next_state, inp_shape)
+				# print(action)
+				next_state, reward, done, _ = env.step(action)
+				# quit(0)
+				next_state = np.reshape(next_state, input_shape)
 
-				outs[i].append((state, action, reward, next_state, done))
+				if prev_state is not None:
+					outs[model_i].append((state, action, reward, next_state, done))
 				prev_state = state
-				orig_action[0][action] = reward + np.amax(model.model.predict(state)[0])
+				orig_action[action] = reward + np.amax(orig_action)
 				prev_action = orig_action
 
 			steps = len(outs[0])
-			# Train the models
-			for state, action, reward, next_state, done in outs[i][:int(0.8 * steps)]:
-				target = reward
-				if not done:
-					target = reward + np.amax(model.model.predict(next_state)[0])
-				target_f = model.model.predict(state)[0]
-				# print(action)
-				# print(target_f)
-				target_f[0][action] = target
-				model.model.fit(x=state, y=target_f, epochs=1, verbose=0)
+			# # Train the models
+			# for state, action, reward, next_state, done in outs[model_i][:int(0.8 * steps)]:
+			# 	target = reward
+			# 	target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
+			# 	if not done:
+			# 		target = reward + np.amax(target_f)
+			# 	# target_f = model.model.predict(state)[0]
+			# 	# print(action)
+			# 	# print(target_f)
+			# 	target_f[action] = target
+			# 	x = np.append(state, next_state, axis=1)
+			# 	# print(x.shape)
+			# 	# quit(0)
+			# 	model.model.fit(x=x, y=np.reshape(target_f, (1, 2)), epochs=1, verbose=0)
 
-			# Test the models
-			for state, action, reward, next_state, done in outs[i][int(0.8 * steps):]:
-				target = reward
-				if not done:
-					target = reward + np.amax(model.model.predict(next_state)[0])
-				target_f = model.model.predict(state)[0]
-				target_f[0][action] = target
-				acc = model.model.evaluate(x=state, y=target_f, verbose=0)[1]
-				fitness[i] += acc
+			# 
+			for state, action, reward, next_state, done in outs[model_i][int(0.8 * steps):]:
+				# target = reward
+				# target_f = model.model.predict(np.append(state, next_state, axis=1))[0]
+				# if not done:
+				# 	target = reward + np.amax(target_f)
+				# target_f[action] = target
+				# acc = model.model.evaluate(x=np.append(state, next_state, axis=1), y=np.reshape(target_f, (1, 2)), verbose=0)[1]
+				fitness[model_i] += reward
+
+
 
 		logger.info(fitness)
 		save_models(population, gen)
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
+		# logger.info(num_elites)
 
 		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
+		remake_pop(population)
 	
-	environment.monitor.close()
-	population[0].model.build()
-	population[0].get_model().summary()
+	env.close()
+	# population[0].model.build()
+	# population[0].get_model().summary()
 
 
 if __name__ == "__main__":
@@ -309,9 +271,9 @@ if __name__ == "__main__":
 	hyperparameters = None # future implementation of reading h_params from IO
 
 	if hyperparameters == None:
-		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		# hyperparameters = {'generations': 5, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
-		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+		# hyperparameters = {'generations': 10, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+		hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 
 	if gym_test:
@@ -326,3 +288,50 @@ if __name__ == "__main__":
 
 		population[0].get_model().summary()
 
+
+
+
+
+
+
+# Old gathering training data with gym:
+# Get training data
+# for _ in range(steps):
+# 	state = next_state
+# 	# environment.render()
+# 	if prev_state is not None:
+# 		model.model.train_on_batch(prev_state, prev_action)
+
+# 	orig_action = model.model.predict(state)[0]
+# 	action = np.argmax(orig_action)
+# 	# action = np.reshape([0.0, 0.0], (1,2))
+# 	# action[0][action_ind] = 1.0
+# 	next_state, reward, done, _ = environment.step(action)
+# 	next_state = np.reshape(next_state, inp_shape)
+
+# 	outs[model_i].append((state, action, reward, next_state, done))
+# 	prev_state = state
+# 	orig_action[0][action] = reward + np.amax(model.model.predict(state)[0])
+# 	prev_action = orig_action
+
+# steps = len(outs[0])
+# # Train the models
+# for state, action, reward, next_state, done in outs[model_i][:int(0.8 * steps)]:
+# 	target = reward
+# 	if not done:
+# 		target = reward + np.amax(model.model.predict(next_state)[0])
+# 	target_f = model.model.predict(state)[0]
+# 	# print(action)
+# 	# print(target_f)
+# 	target_f[0][action] = target
+# 	model.model.fit(x=state, y=target_f, epochs=1, verbose=0)
+
+# # Test the models
+# for state, action, reward, next_state, done in outs[model_i][int(0.8 * steps):]:
+# 	target = reward
+# 	if not done:
+# 		target = reward + np.amax(model.model.predict(next_state)[0])
+# 	target_f = model.model.predict(state)[0]
+# 	target_f[0][action] = target
+# 	acc = model.model.evaluate(x=state, y=target_f, verbose=0)[1]
+# 	fitness[model_i] += acc
