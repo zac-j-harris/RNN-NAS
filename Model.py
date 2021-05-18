@@ -12,6 +12,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
 from keras.models import Sequential
+# import tensorflow as tf
 import random, logging
 
 logger = logging.getLogger("Model")
@@ -28,9 +29,12 @@ class Model():
 		self.base_output_dim = output_dim
 
 		if layer_specs == None:
-			self.input_shapes = [input_shapes, input_shapes, input_shapes]
-			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense'], self.m_type_dict['dense']]
-			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim*10), self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim), self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
+			first_inp = (None, input_shapes[0], input_shapes[1])
+			self.input_shapes = [first_inp, input_shapes] #, input_shapes]
+			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense']] #, self.m_type_dict['dense']]
+			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim), 
+			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] #, 
+			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
 			self.input_shapes, self.layer_types, self.layer_specs = input_shapes, layer_types, layer_specs
 
@@ -65,7 +69,9 @@ class Model():
 				self.model.add(self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i])) 
 				# pop_spec does have a value, because it's never not created
 
-		self.model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
+		# self.get_summary(input_shapes)
+
+		self.model.compile(loss="mean_absolute_error", optimizer='SGD', metrics=['accuracy'])
 
 	def reinit(self):
 		self.__init__(self.base_output_dim, layer_types=self.layer_types, layer_specs=self.layer_specs, model_type=self.model_type, input_shapes=self.input_shapes)
@@ -92,6 +98,9 @@ class Model():
 				break
 
 
+	def get_summary(self, input_shape):
+		self.model.build(input_shape=input_shape)
+		self.model.summary()
 
 
 	def mutate(self, h_params):
@@ -107,6 +116,7 @@ class Model():
 		# num_layer_types = len(population['layer_specs'][model_i])
 		# old_input_shape = self.input_shapes[layer_i]
 		prior_layer_out = self.layer_specs[layer_i][4]
+		# new_input_shape = tf.constant([1, prior_layer_out])
 		new_input_shape = [1, prior_layer_out]
 		# logger.debug(prior_layer_out)
 		# new_layer_input_shape = [self.input_shapes[layer_i][1], self.base_output_dim]
@@ -123,6 +133,7 @@ class Model():
 				new_input_shapes[i] = new_input_shape
 			else:
 				if i == layer_i + 2:
+					# new_input_shapes[i] = tf.constant((1, new_layer_specs[i - 1][4]))
 					new_input_shapes[i] = (1, new_layer_specs[i - 1][4])
 				else:
 					new_input_shapes[i] = self.input_shapes[i - delta]
@@ -136,7 +147,7 @@ class Model():
 		self.layer_specs = new_layer_specs
 		self.input_shapes = new_input_shapes
 
-		# logger.info(self.model.summary())
+		# logger.debug(self.model.summary())
 
 
 
@@ -200,22 +211,37 @@ class Model():
 
 	def make_uni_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
 		init_values = self.random_init_values() if init_values is None else init_values
+		if input_shape[0] == None and len(input_shape) == 3:
+			input_shape = (input_shape[1], input_shape[2])
+			return Reshape(target_shape=input_shape, input_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+					kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
+
 		return Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
 					kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
 
 
 	def make_bi_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
 		init_values = self.random_init_values() if init_values is None else init_values
+		if input_shape[0] == None and len(input_shape) == 3:
+			input_shape = (input_shape[1], input_shape[2])
+			return Reshape(target_shape=input_shape, input_shape=input_shape), Bidirectional(
+				LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape)
+
 		return Reshape(target_shape=input_shape), Bidirectional(
 			LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape)
 
 
 	def make_cascaded_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
 		init_values = self.random_init_values() if init_values is None else init_values
+		if input_shape[0] == None and len(input_shape) == 3:
+			input_shape = (input_shape[1], input_shape[2])
+			return Reshape(target_shape=input_shape, input_shape=input_shape), Bidirectional(
+				LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape), 
+			Reshape(target_shape=input_shape, input_shape=input_shape), LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2])
+		
 		return Reshape(target_shape=input_shape), Bidirectional(
 			LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape), 
 		Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2])
-
 
 	# def make_2d_cnn(self, output_dim, input_shape, init_values=None, return_sequences=False):
 	# 	init_values = self.random_init_values() if init_values is None else init_values
