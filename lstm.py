@@ -141,12 +141,13 @@ def load_uci_har():
 
 
 
-def remake_pop(population):
-	for model in population:
-		model.reinit()
+def remake_pop(population, strategy):
+	with strategy.scope():
+		for model in population:
+			model.reinit()
 
 
-def init_pop(output_dim, input_shape, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
+def init_pop(output_dim, input_shape, strategy, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
 	# import NAS
 	return NAS.make_pop(output_dim=output_dim, input_shapes=input_shape, pop_size=pop_size, m_type=m_type)
 
@@ -169,7 +170,7 @@ def save_models(population, generation):
 
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
-		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024)):
+		  validation_split=tf.constant(0.05), verbose=tf.constant(0), input_shape=(3, 1024), strategy=None):
 	# import NAS
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
@@ -188,6 +189,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		
 		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
+		remake_pop(population, strategy)
 
 		population[0].model.build()
 		population[0].get_model().summary()
@@ -385,12 +387,14 @@ if __name__ == "__main__":
 	# print(x_train.shape)
 	# quit()
 
+	mirrored_strategy = tf.distribute.MirroredStrategy()
+
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
 
 
-	gym_test = False
-	test_model = False
+	train_gym = False
+	test_gym = False
 
 	hyperparameters = None # future implementation of reading h_params from IO
 
@@ -401,19 +405,19 @@ if __name__ == "__main__":
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 
-	if gym_test:
+	if train_gym:
 		train_with_gym(hyperparameters)
-	elif test_model:
+	elif test_gym:
 		test_model_gym()
 	else:
-
-		population = init_pop(base_output_dim, inp_shape, m_type="uni", pop_size=hyperparameters['pop_size'])
+		with mirrored_strategy.scope():
+			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
 		# print(inp_shape)
 		population[0].get_summary(inp_shape)
 		# quit()
 
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-									epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=256)
+									epochs=tf.constant(100, dtype=tf.int64), input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 
 		population[0].get_model().summary()
 
