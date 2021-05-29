@@ -122,7 +122,8 @@ def load_uci_har():
 	input_shape = (1, 561)
 	# input_shape = (None, 1, 561)
 
-	dirpath = "./Data/UCI_HAR_Dataset"
+	# dirpath = "./Data/UCI_HAR_Dataset"
+	dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	x_train_filename 	= "train/X_train.txt"
 	x_test_filename 	= "test/X_test.txt"
 	y_train_filename 	= "train/y_train.txt"
