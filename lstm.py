@@ -14,7 +14,7 @@ from keras.layers import LSTM
 from keras.models import load_model
 from keras.datasets import cifar10
 from keras.backend import clear_session
-import gym
+# import gym
 # notset > debug > info > warning > error > critical
 logging.basicConfig(level=logging.INFO)
 # logging.basicConfig(level=logging.INFO)
