@@ -250,7 +250,7 @@ class Model():
 
 
 	def make_flatten(self, out_dim, input_shape):
-		target_shape = (input_shape[0], input_shape[2])
+		target_shape = (input_shape[0], input_shape[1])
 		return Reshape(target_shape=target_shape), Dense(output_dim, input_shape=target_shape, activation=init_values[0], kernel_initializer=init_values[1],
 					 kernel_constraint=init_values[2])
 
