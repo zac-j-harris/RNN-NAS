@@ -143,10 +143,13 @@ def load_uci_har():
 
 
 def remake_pop(population, strategy):
-	with strategy.scope():
+	if strategy is not None:
+		with strategy.scope():
+			for model in population:
+				model.reinit()
+	else:
 		for model in population:
 			model.reinit()
-
 
 def init_pop(output_dim, input_shape, strategy, m_type=random.choice(["uni", "bi", "cascaded"]), pop_size=10):
 	# import NAS
@@ -389,6 +392,7 @@ if __name__ == "__main__":
 	# quit()
 
 	mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
+	# mirrored_strategy=None
 
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
@@ -401,12 +405,12 @@ if __name__ == "__main__":
 
 	if hyperparameters == None:
 		# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		# hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# Epochs - 32, optimizer - Adam
 
 	if train_gym:
@@ -414,7 +418,10 @@ if __name__ == "__main__":
 	elif test_gym:
 		test_model_gym()
 	else:
-		with mirrored_strategy.scope():
+		if mirrored_strategy is not None:
+			with mirrored_strategy.scope():
+				population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
+		else:
 			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
 		# print(inp_shape)
 		population[0].get_summary(inp_shape)
