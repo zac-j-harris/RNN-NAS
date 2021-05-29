@@ -3,7 +3,7 @@
 #
 
 import random
-from keras.models import Sequential
+from tensorflow.keras.models import Sequential
 from math import ceil
 from Model import Model
 # from lstm import mutate_init_values
