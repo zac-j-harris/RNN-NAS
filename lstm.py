@@ -7,13 +7,13 @@ import os
 import pickle
 import random
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Activation
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.models import load_model
-from keras.datasets import cifar10
-from keras.backend import clear_session
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.models import load_model
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.backend import clear_session
 # import gym
 # notset > debug > info > warning > error > critical
 logging.basicConfig(level=logging.INFO)
