@@ -23,7 +23,7 @@ logger = logging.getLogger("Main")
 # global base_output_dim
 base_output_dim = 0
 
-SERVER=False
+SERVER=True
 
 
 def unpickle(file):
@@ -398,6 +398,7 @@ if __name__ == "__main__":
 		mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
 	else:
 		mirrored_strategy = None
+		# mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
 
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
