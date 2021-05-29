@@ -30,10 +30,10 @@ class Model():
 
 		if layer_specs == None:
 			first_inp = (None, input_shapes[0], input_shapes[1])
-			self.input_shapes = [first_inp, input_shapes] #, input_shapes]
+			self.input_shapes = [first_inp, input_shapes, input_shapes]
 			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense'], self.m_type_dict['flat']] #, self.m_type_dict['dense']]
 			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim), 
-			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] #, 
+			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim), self.base_output_dim] #, 
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
 			self.input_shapes, self.layer_types, self.layer_specs = input_shapes, layer_types, layer_specs
@@ -70,7 +70,9 @@ class Model():
 				# pop_spec does have a value, because it's never not created
 
 			elif layer == self.m_type_dict['flat']:
-				self.model.add(Flatten())
+				a, b = self.make_flatten(self.layer_specs[layer_i]), self.input_shapes[layer_i]
+				self.model.add(a)
+				self.model.add(b)
 
 		# self.get_summary(input_shapes)
 
@@ -245,6 +247,12 @@ class Model():
 		return Reshape(target_shape=input_shape), Bidirectional(
 			LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape), 
 		Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2])
+
+
+	def make_flatten(self, out_dim, input_shape):
+		target_shape = (input_shape[0], input_shape[2])
+		return Reshape(target_shape=target_shape), Dense(output_dim, input_shape=target_shape, activation=init_values[0], kernel_initializer=init_values[1],
+					 kernel_constraint=init_values[2])
 
 	# def make_2d_cnn(self, output_dim, input_shape, init_values=None, return_sequences=False):
 	# 	init_values = self.random_init_values() if init_values is None else init_values
