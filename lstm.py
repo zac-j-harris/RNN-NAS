@@ -381,8 +381,8 @@ def train_with_gym(h_params, steps=30, batches=10):
 
 if __name__ == "__main__":
 	# Get data
-	(x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()		# shape = n, 1, 3072 or n, 3, 1024
-	# (x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
+	# (x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()		# shape = n, 1, 3072 or n, 3, 1024
+	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
 
 	# print(x_train.shape)
 	# quit()
@@ -404,6 +404,9 @@ if __name__ == "__main__":
 		# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
+		# As described in paper (crossover rate and mutation percentage differ)
+		# hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# Epochs - 32, optimizer - Adam
 
 	if train_gym:
 		train_with_gym(hyperparameters)
