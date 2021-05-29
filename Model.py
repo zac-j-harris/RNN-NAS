@@ -3,15 +3,15 @@
 #
 
 import random
-from keras.models import Sequential
+from tensorflow.keras.models import Sequential
 from math import ceil
 # from lstm import mutate_init_values
-from keras.layers import Activation
-from keras.layers import Bidirectional
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
-from keras.models import Sequential
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Bidirectional
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
+from tensorflow.keras.models import Sequential
 # import tensorflow as tf
 import random, logging
 
