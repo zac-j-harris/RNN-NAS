@@ -388,7 +388,7 @@ if __name__ == "__main__":
 	# print(x_train.shape)
 	# quit()
 
-	mirrored_strategy = tf.distribute.MirroredStrategy()
+	mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=8)
 
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
