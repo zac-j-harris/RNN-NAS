@@ -135,9 +135,13 @@ def load_uci_har():
 
 	length = 5
 	
-	x_t = get_data(x_train_filename, dirpath, x=True)[:length]
+	if SERVER:
+		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
+		y_t = get_data(y_train_filename, dirpath)[:length]
+	else:
+		x_t = get_data(x_train_filename, dirpath, x=True)
+		y_t = get_data(y_train_filename, dirpath)
 	x_tst = get_data(x_test_filename, dirpath, x=True)
-	y_t = get_data(y_train_filename, dirpath)[:length]
 	y_tst = get_data(y_test_filename, dirpath)
 	
 	logger.debug(x_t.shape)
