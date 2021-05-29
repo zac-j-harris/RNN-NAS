@@ -252,7 +252,8 @@ class Model():
 
 
 	def make_Flatten(self, input_shape):
-		return Flatten(input_shape=input_shape)
+		target_shape = (None, input_shape[0], input_shape[1])
+		return Flatten(input_shape=target_shape)
 
 	# def make_2d_cnn(self, output_dim, input_shape, init_values=None, return_sequences=False):
 	# 	init_values = self.random_init_values() if init_values is None else init_values
