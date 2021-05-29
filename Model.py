@@ -70,7 +70,7 @@ class Model():
 				# pop_spec does have a value, because it's never not created
 
 			elif layer == self.m_type_dict['flat']:
-				a, b = self.make_flatten(self.layer_specs[layer_i]), self.input_shapes[layer_i]
+				a, b = self.make_flatten(self.layer_specs[layer_i], self.input_shapes[layer_i])
 				self.model.add(a)
 				self.model.add(b)
 
