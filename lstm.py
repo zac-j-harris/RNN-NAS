@@ -23,6 +23,8 @@ logger = logging.getLogger("Main")
 # global base_output_dim
 base_output_dim = 0
 
+SERVER=False
+
 
 def unpickle(file):
 	import pickle
@@ -122,8 +124,10 @@ def load_uci_har():
 	input_shape = (1, 561)
 	# input_shape = (None, 1, 561)
 
-	# dirpath = "./Data/UCI_HAR_Dataset"
-	dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
+	if SERVER:
+		dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
+	else:
+		dirpath = "./Data/UCI_HAR_Dataset"
 	x_train_filename 	= "train/X_train.txt"
 	x_test_filename 	= "test/X_test.txt"
 	y_train_filename 	= "train/y_train.txt"
@@ -390,9 +394,10 @@ if __name__ == "__main__":
 
 	# print(x_train.shape)
 	# quit()
-
-	mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
-	# mirrored_strategy=None
+	if SERVER:
+		mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
+	else:
+		mirrored_strategy = None
 
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
@@ -406,11 +411,12 @@ if __name__ == "__main__":
 	if hyperparameters == None:
 		# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		# hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+		hyperparameters = {'generations': 3, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		if SERVER:
+			hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# Epochs - 32, optimizer - Adam
 
 	if train_gym:
