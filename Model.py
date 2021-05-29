@@ -71,7 +71,7 @@ class Model():
 
 			elif layer == self.m_type_dict['flat']:
 				# self.model.add(Flatten())
-				self.model.add(self.make_Flatten(self.input_shapes[layer_i]))
+				self.model.add(self.make_Flatten(self.input_shapes[layer_i], self.base_output_dim))
 				# a, b = self.make_flatten(self.layer_specs[layer_i], self.input_shapes[layer_i])
 				# self.model.add(a)
 				# self.model.add(b)
@@ -251,8 +251,8 @@ class Model():
 		Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2])
 
 
-	def make_Flatten(self, input_shape):
-		target_shape = (None, input_shape[0], input_shape[1])
+	def make_Flatten(self, input_shape, output_dim):
+		target_shape = (None, input_shape[0], output_dim)
 		return Flatten(input_shape=target_shape)
 
 	# def make_2d_cnn(self, output_dim, input_shape, init_values=None, return_sequences=False):
