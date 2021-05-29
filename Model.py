@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape
+from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape, Flatten
 from tensorflow.keras.models import Sequential
 # import tensorflow as tf
 import random, logging
@@ -19,7 +19,7 @@ logger = logging.getLogger("Model")
 
 class Model():
 
-	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3, 'dense': 4}
+	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3, 'dense': 4, 'flat': 5}
 
 
 
@@ -31,7 +31,7 @@ class Model():
 		if layer_specs == None:
 			first_inp = (None, input_shapes[0], input_shapes[1])
 			self.input_shapes = [first_inp, input_shapes] #, input_shapes]
-			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense']] #, self.m_type_dict['dense']]
+			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense'], self.m_type_dict['flat']] #, self.m_type_dict['dense']]
 			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim), 
 			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] #, 
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
@@ -66,8 +66,11 @@ class Model():
 
 
 			elif layer == self.m_type_dict['dense']:
-				self.model.add(self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i])) 
+				self.model.add(self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i]))
 				# pop_spec does have a value, because it's never not created
+
+			elif layer == self.m_type_dict['flat']:
+				self.model.add(Flatten())
 
 		# self.get_summary(input_shapes)
 
@@ -104,7 +107,7 @@ class Model():
 
 
 	def mutate(self, h_params):
-		for layer_i in range(1, len(self.layer_types)-1):
+		for layer_i in range(1, len(self.layer_types)-2):
 			if random.random() < h_params['mutation_rate']:
 				self.mutate_helper(layer_i, h_params, self.base_output_dim)
 
