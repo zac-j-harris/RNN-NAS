@@ -211,7 +211,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	return population
 
 
-def test(X, y, model, batch_size=tf.constant(5), verbose=1):
+def test(X, y, model, batch_size=5, verbose=1):
 	return model.evaluate(x=X, y=y, verbose=verbose, batch_size=batch_size)
 
 
