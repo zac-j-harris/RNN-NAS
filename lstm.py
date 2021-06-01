@@ -23,7 +23,7 @@ logger = logging.getLogger("Main")
 # global base_output_dim
 base_output_dim = 0
 
-SERVER=True
+SERVER=False
 
 
 def unpickle(file):
