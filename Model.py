@@ -30,10 +30,10 @@ class Model():
 
 		if layer_specs == None:
 			first_inp = (None, input_shapes[0], input_shapes[1])
-			self.input_shapes = [first_inp, input_shapes, input_shapes]
-			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense'], self.m_type_dict['flat']] #, self.m_type_dict['dense']]
+			self.input_shapes = [first_inp, input_shapes] # , input_shapes]
+			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense']] # , self.m_type_dict['flat']] #, self.m_type_dict['dense']]
 			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim), 
-			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim), self.base_output_dim] #, 
+			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] # , self.base_output_dim] #, 
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
 			self.input_shapes, self.layer_types, self.layer_specs = input_shapes, layer_types, layer_specs
@@ -111,7 +111,8 @@ class Model():
 
 
 	def mutate(self, h_params):
-		for layer_i in range(1, len(self.layer_types)-2):
+		# for layer_i in range(1, len(self.layer_types)-2):
+		for layer_i in range(1, len(self.layer_types)-1):
 			if random.random() < h_params['mutation_rate']:
 				self.mutate_helper(layer_i, h_params, self.base_output_dim)
 
