@@ -185,7 +185,7 @@ def save_models(population, generation):
 
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
-		  validation_split=0.05, verbose=tf.constant(0), input_shape=(3, 1024), strategy=None):
+		  validation_split=0.05, verbose=0, input_shape=(3, 1024), strategy=None):
 	# import NAS
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
@@ -211,7 +211,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	return population
 
 
-def test(X, y, model, batch_size=tf.constant(5), verbose=tf.constant(1)):
+def test(X, y, model, batch_size=tf.constant(5), verbose=1):
 	return model.evaluate(x=X, y=y, verbose=verbose, batch_size=batch_size)
 
 
