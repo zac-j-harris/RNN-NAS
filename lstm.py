@@ -23,7 +23,7 @@ logger = logging.getLogger("Main")
 # global base_output_dim
 base_output_dim = 0
 
-SERVER=False
+SERVER=True
 
 
 def unpickle(file):
@@ -138,7 +138,7 @@ def load_uci_har():
 
 	length = 5
 	
-	if not SERVER:
+	if SERVER: # Changed to test
 		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
 		y_t = get_data(y_train_filename, dirpath)[:length]
 	else:
@@ -426,7 +426,7 @@ if __name__ == "__main__":
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		if SERVER:
+		if not SERVER: # changed to test
 			hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# Epochs - 32, optimizer - Adam
 
