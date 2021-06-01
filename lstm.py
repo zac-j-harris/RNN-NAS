@@ -111,7 +111,10 @@ def get_data(filename, dirpath, x=False, dtype='float32'):
 			all_data[i][val] = 1.0
 
 	out = np.asarray(all_data, dtype=dtype)
-	shape = (out.shape[0], 1, out.shape[1])
+	if x:
+		shape = (out.shape[0], 1, out.shape[1])
+	else:
+		shape = out.shape
 	out = np.reshape(out, shape)
 	return out
 
@@ -397,7 +400,10 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
 
 	# print(x_train.shape)
+	# print(y_train.shape)
 	# quit()
+
+
 	if SERVER:
 		mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
 	else:
