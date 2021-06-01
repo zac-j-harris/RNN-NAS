@@ -138,7 +138,7 @@ def load_uci_har():
 
 	length = 5
 	
-	if SERVER: # Changed to test
+	if not SERVER: # 
 		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
 		y_t = get_data(y_train_filename, dirpath)[:length]
 	else:
@@ -404,7 +404,7 @@ if __name__ == "__main__":
 	# quit()
 
 
-	if SERVER:
+	if not SERVER: # changed to test
 		mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
 	else:
 		mirrored_strategy = None
@@ -422,11 +422,11 @@ if __name__ == "__main__":
 	if hyperparameters == None:
 		# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		hyperparameters = {'generations': 300, 'pop_size': 1, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+		hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		if not SERVER: # changed to test
+		if SERVER: # 
 			hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# Epochs - 32, optimizer - Adam
 
