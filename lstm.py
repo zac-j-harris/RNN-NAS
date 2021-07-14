@@ -127,7 +127,7 @@ def load_uci_har():
 	input_shape = (1, 561)
 	# input_shape = (None, 1, 561)
 
-	if SERVER: #
+	if not SERVER: #
 		dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	else:
 		dirpath = "./Data/UCI_HAR_Dataset"
@@ -138,7 +138,7 @@ def load_uci_har():
 
 	length = 5
 	
-	if not SERVER: # 
+	if SERVER: # 
 		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
 		y_t = get_data(y_train_filename, dirpath)[:length]
 	else:
@@ -181,7 +181,7 @@ def run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_sp
 def save_models(population, generation):
 	for model_i in range(len(population)):
 		model = population[model_i].get_model()
-		model.save("./models/gen_" + str(generation) + "/model_" + str(model_i) + ".h5")
+		model.save("./models/gen_" + str(generation) + "_model_" + str(model_i) + ".h5")
 
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
@@ -426,7 +426,7 @@ if __name__ == "__main__":
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		if SERVER: # 
+		if not SERVER: # 
 			hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 		# Epochs - 32, optimizer - Adam
 
