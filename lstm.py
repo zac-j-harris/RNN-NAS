@@ -127,7 +127,7 @@ def load_uci_har():
 	input_shape = (1, 561)
 	# input_shape = (None, 1, 561)
 
-	if not SERVER: #
+	if SERVER: #
 		dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	else:
 		dirpath = "~/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
