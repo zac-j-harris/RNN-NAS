@@ -130,7 +130,7 @@ def load_uci_har():
 	if not SERVER: #
 		dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	else:
-		dirpath = "./Data/UCI_HAR_Dataset"
+		dirpath = "~/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	x_train_filename 	= "train/X_train.txt"
 	x_test_filename 	= "test/X_test.txt"
 	y_train_filename 	= "train/y_train.txt"
