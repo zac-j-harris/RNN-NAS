@@ -445,7 +445,7 @@ if __name__ == "__main__":
 		# quit()
 
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-									epochs=100, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
+									epochs=500, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 
 		population[0].get_model().summary()
 
