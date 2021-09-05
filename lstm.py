@@ -417,17 +417,15 @@ if __name__ == "__main__":
 	train_gym = False
 	test_gym = False
 
-	hyperparameters = None # future implementation of reading h_params from IO
 
-	if hyperparameters == None:
-		# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.05, 'elitism_rate': 0.1, 'structure_rate': 1.0}
+	# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+	# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+	hyperparameters = {'generations': 200, 'pop_size': 30, 'mutation_rate': 0.5, 'mutation_percentage': 0.20, 'elitism_rate': 0.1, 'structure_rate': 0.30}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
-		if SERVER: # 
-			hyperparameters = {'generations': 100, 'pop_size': 20, 'mutation_rate': 0.50, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.30}
+		# if SERVER: #
+		# 	hyperparameters = {'generations': 100, 'pop_size': 20, 'mutation_rate': 0.50, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.30}
 		# Epochs - 32, optimizer - Adam
 
 	if train_gym:
@@ -445,7 +443,7 @@ if __name__ == "__main__":
 		# quit()
 
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-									epochs=500, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
+									epochs=1000, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 
 		population[0].get_model().summary()
 
