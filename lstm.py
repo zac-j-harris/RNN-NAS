@@ -420,7 +420,7 @@ if __name__ == "__main__":
 
 	# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
 	# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-	hyperparameters = {'generations': 200, 'pop_size': 30, 'mutation_rate': 0.5, 'mutation_percentage': 0.20, 'elitism_rate': 0.1, 'structure_rate': 0.30}
+	hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.80, 'mutation_percentage': 0.20, 'elitism_rate': 0.1, 'structure_rate': 0.80}
 		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
