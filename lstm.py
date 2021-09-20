@@ -433,7 +433,7 @@ if __name__ == "__main__":
 	else:
 		hyperparameters = {'generations': 5, 'pop_size': 5, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
 		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
-		epochs = 5
+		epochs = 20
 
 	if train_gym:
 		train_with_gym(hyperparameters)
