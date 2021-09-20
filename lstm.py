@@ -23,7 +23,7 @@ logger = logging.getLogger("Main")
 # global base_output_dim
 base_output_dim = 0
 
-SERVER=True
+SERVER=False
 
 
 def unpickle(file):
@@ -130,7 +130,7 @@ def load_uci_har():
 	if SERVER: #
 		dirpath = "/home/zharris1/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
 	else:
-		dirpath = "~/Documents/Github/RNN-NAS/Data/UCI_HAR_Dataset"
+		dirpath = "./Data/UCI_HAR_Dataset"
 	x_train_filename 	= "train/X_train.txt"
 	x_test_filename 	= "test/X_test.txt"
 	y_train_filename 	= "train/y_train.txt"
@@ -191,9 +191,6 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
-
-
-
 		
 		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
 		
@@ -206,8 +203,8 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		clear_session()
 		remake_pop(population, strategy)
 
-		population[0].model.build()
-		population[0].get_model().summary()
+		population[len(population)-1].model.build(input_shape=(None, 1, 561))
+		population[len(population)-1].get_model().summary()
 	return population
 
 
@@ -400,12 +397,16 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
 
 	# print(x_train.shape)
+	# quit()
+
+	# print(x_train.shape)
 	# print(y_train.shape)
 	# quit()
 
 
 	if not SERVER: # changed to test
-		mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
+		# mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
+		mirrored_strategy = None
 	else:
 		mirrored_strategy = None
 		# mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
@@ -419,9 +420,9 @@ if __name__ == "__main__":
 
 
 	# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-	# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.3, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-	hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.80, 'mutation_percentage': 0.20, 'elitism_rate': 0.1, 'structure_rate': 0.80}
-		# hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.50, 'elitism_rate': 0.1, 'structure_rate': 0.0}
+	# hyperparameters = {'generations': 30, 'pop_size': 3, 'mutation_rate': 0.8, 'mutation_percentage': 0.20,'elitism_rate': 0.1, 'structure_rate': 0.1}
+	# hyperparameters = {'generations': 300, 'pop_size': 50, 'mutation_rate': 0.80, 'mutation_percentage': 0.20, 'elitism_rate': 0.1, 'structure_rate': 0.80}
+	hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 2.5, 'elitism_rate': 0.1, 'structure_rate': 1.0}
 
 		# As described in paper (crossover rate and mutation percentage differ)
 		# if SERVER: #
@@ -439,12 +440,15 @@ if __name__ == "__main__":
 		else:
 			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
 		# print(inp_shape)
-		population[0].get_summary(inp_shape)
+		# population[0].get_summary(inp_shape)
 		# quit()
 
+		# population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
+		# 							epochs=1000, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-									epochs=1000, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
+									epochs=5, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 
+		population[0].get_model().build(input_shape=(None, 1, 561))
 		population[0].get_model().summary()
 
 

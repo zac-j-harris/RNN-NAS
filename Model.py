@@ -48,6 +48,8 @@ class Model():
 
 			if layer == self.m_type_dict['uni']:
 				a, b = self.make_uni_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i]) #, return_sequences=not_final_layer))
+				# a = self.make_uni_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i],
+				#                        init_values=self.layer_specs[layer_i])  # , return_sequences=not_final_layer))
 				self.model.add(a)
 				self.model.add(b)
 
@@ -112,7 +114,7 @@ class Model():
 
 	def mutate(self, h_params):
 		# for layer_i in range(1, len(self.layer_types)-2):
-		for layer_i in range(1, len(self.layer_types)-1):
+		for layer_i in range(0, len(self.layer_types)-1):
 			if random.random() < h_params['mutation_rate']:
 				self.mutate_helper(layer_i, h_params, self.base_output_dim)
 
@@ -121,8 +123,12 @@ class Model():
 		"""
 			Updates population with new layer, but does not make new model
 		"""
+		# if layer_i == 0:
+		# 	print('layer = 0')
 		# num_layer_types = len(population['layer_specs'][model_i])
 		# old_input_shape = self.input_shapes[layer_i]
+		old_layer_specs = self.layer_specs[layer_i]
+
 		prior_layer_out = self.layer_specs[layer_i][4]
 		# new_input_shape = tf.constant([1, prior_layer_out])
 		new_input_shape = [1, prior_layer_out]
@@ -138,19 +144,25 @@ class Model():
 				delta = 1
 				new_layer_types[i] = layer_type
 				new_layer_specs[i] = self.random_init_values()
+				if layer_i == len(self.layer_types):
+					new_layer_specs[i][4] = prior_layer_out
 				new_input_shapes[i] = new_input_shape
+				# new_input_shapes[i] = (1, new_layer_specs[i - 1][4])
 			else:
-				if i == layer_i + 2:
+				# if i == layer_i + 2:
 					# new_input_shapes[i] = tf.constant((1, new_layer_specs[i - 1][4]))
-					new_input_shapes[i] = (1, new_layer_specs[i - 1][4])
-				else:
-					new_input_shapes[i] = self.input_shapes[i - delta]
+					# new_input_shapes[i] = (1, new_layer_specs[i - 1][4])
+					# new_input_shapes[i] = new_input_shape
+				# else:
+				new_input_shapes[i] = self.input_shapes[i - delta]
 				new_layer_types[i] = self.layer_types[i - delta]
-				new_layer_specs[i] = self.layer_specs[i - delta]
+				new_layer_specs[i] = self.layer_specs[i - delta] # if i != layer_i else self.random_init_values()
 				if new_layer_specs[i][0] == 0:
 					logger.error(new_layer_specs[i])
 					quit(-1)
-
+		# if layer_i == 0:
+		# 	new_layer_specs[layer_i] = old_layer_specs
+		new_layer_specs[layer_i][4] = self.random_init_values()[4]
 		self.layer_types = new_layer_types
 		self.layer_specs = new_layer_specs
 		self.input_shapes = new_input_shapes
@@ -168,9 +180,13 @@ class Model():
 			'''
 
 			l_type = random.choice([self.m_type_dict[self.model_type], self.m_type_dict['dense']])
+			# l_type = self.m_type_dict['dense']
+			# l_type = self.m_type_dict['uni']
 
+			# if layer_i == 0:
+			# 	self.add_layer(1, l_type)
+			# else:
 			self.add_layer(layer_i, l_type)
-
 
 		else:
 			"""
@@ -178,6 +194,8 @@ class Model():
 				This is because model_layer_specs shows each layer's composition, and we are changing a single layer_types' composition.
 				TODO: instead of random values, look into minor adjustments
 			"""
+			if layer_i == 0:
+				return
 			change = random.choice(range(1,5))
 			# change = 4
 
@@ -219,13 +237,26 @@ class Model():
 
 	def make_uni_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
 		init_values = self.random_init_values() if init_values is None else init_values
-		if input_shape[0] == None and len(input_shape) == 3:
-			input_shape = (input_shape[1], input_shape[2])
-			return Reshape(target_shape=input_shape, input_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
-					kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
+		# if input_shape[0] == None and len(input_shape) == 3:
+		# 	input_shape = (input_shape[1], input_shape[2])
+			# return Reshape(target_shape=input_shape, input_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+			# 		kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
 
-		return Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
-					kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
+		# return Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+		# 			kernel_constraint=init_values[2], return_sequences=return_sequences, input_shape=input_shape)
+		# return Reshape(target_shape=input_shape), LSTM(output_dim, activation=init_values[0],
+		#                                                kernel_initializer=init_values[1],
+		#                                                kernel_constraint=init_values[2],
+		#                                                return_sequences=return_sequences)
+
+		target = (1, output_dim)
+		return LSTM(output_dim, activation=init_values[0],
+		                                          kernel_initializer=init_values[1],
+		                                          kernel_constraint=init_values[2],
+		                                          return_sequences=return_sequences),  Reshape(target_shape=target)
+		# return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+		#             kernel_constraint=init_values[2],
+		#             return_sequences=return_sequences)
 
 
 	def make_bi_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
@@ -265,8 +296,10 @@ class Model():
 
 	def make_Dense(self, output_dim, input_shape, init_values=None):
 		init_values = self.random_init_values() if init_values is None else init_values
-		return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
-					 kernel_constraint=init_values[2])
+		# return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
+		# 			 kernel_constraint=init_values[2])
+		return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+		             kernel_constraint=init_values[2])
 
 	def get_model(self):
 		return self.model

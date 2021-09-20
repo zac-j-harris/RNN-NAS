@@ -20,7 +20,9 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 	"""
 	if population is None:
 		population = [Model(output_dim=output_dim, model=None, layer_types=layer_types, layer_specs=layer_specs, model_type=m_type, input_shapes=input_shapes) for _ in range(pop_size)]
-
+	for model in population:
+		# model.model.build(input_shape=(7352, 1, 561)) # (N, 1, 561)
+		model.model.build(input_shape=(None, 1, 561)) # (N, 1, 561)
 	return population
 
 
