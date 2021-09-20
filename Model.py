@@ -81,7 +81,8 @@ class Model():
 		# self.get_summary(input_shapes)
 
 		# self.model.compile(loss="mean_absolute_error", optimizer='SGD', metrics=['accuracy'])
-		self.model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
+		# self.model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
+		self.model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['mse', 'accuracy'])
 
 	def reinit(self):
 		self.__init__(self.base_output_dim, layer_types=self.layer_types, layer_specs=self.layer_specs, model_type=self.model_type, input_shapes=self.input_shapes)
@@ -195,7 +196,7 @@ class Model():
 				This is because model_layer_specs shows each layer's composition, and we are changing a single layer_types' composition.
 				TODO: instead of random values, look into minor adjustments
 			"""
-			if layer_i == 0:
+			if layer_i == 0 or layer_i == len(self.layer_specs)-1:
 				return
 			change = random.choice(range(1,5))
 			# change = 4
