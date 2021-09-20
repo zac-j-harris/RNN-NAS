@@ -197,6 +197,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		logger.debug(fitness)
 		
 		save_models(population, gen)
+		clear_session()
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
 		
 		population = NAS.mutation(population, h_params, num_elites)
@@ -427,7 +428,7 @@ if __name__ == "__main__":
 		# As described in paper (crossover rate and mutation percentage differ)
 		# if SERVER: #
 		# 	hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-	hyperparameters = {'generations': 100, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+	hyperparameters = {'generations': 100, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.33}
 		# Epochs - 32, optimizer - Adam
 
 	if train_gym:
