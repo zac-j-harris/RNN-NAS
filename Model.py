@@ -80,7 +80,8 @@ class Model():
 
 		# self.get_summary(input_shapes)
 
-		self.model.compile(loss="mean_absolute_error", optimizer='SGD', metrics=['accuracy'])
+		# self.model.compile(loss="mean_absolute_error", optimizer='SGD', metrics=['accuracy'])
+		self.model.compile(loss="mean_absolute_error", optimizer='adam', metrics=['accuracy'])
 
 	def reinit(self):
 		self.__init__(self.base_output_dim, layer_types=self.layer_types, layer_specs=self.layer_specs, model_type=self.model_type, input_shapes=self.input_shapes)
