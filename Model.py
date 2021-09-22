@@ -116,7 +116,7 @@ class Model():
 
 	def mutate(self, h_params):
 		# for layer_i in range(1, len(self.layer_types)-2):
-		for layer_i in range(0, len(self.layer_types)-1):
+		for layer_i in range(0, len(self.layer_types)-2):
 			if random.random() < h_params['mutation_rate']:
 				self.mutate_helper(layer_i, h_params, self.base_output_dim)
 
