@@ -146,8 +146,8 @@ class Model():
 				delta = 1
 				new_layer_types[i] = layer_type
 				new_layer_specs[i] = self.random_init_values()
-				if layer_i == len(self.layer_types):
-					new_layer_specs[i][4] = [1, 6]
+				if layer_i >= len(self.layer_types)-1:
+					new_layer_specs[i][4] = prior_layer_out
 				new_input_shapes[i] = new_input_shape
 				# new_input_shapes[i] = (1, new_layer_specs[i - 1][4])
 			else:
