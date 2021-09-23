@@ -247,9 +247,10 @@ if __name__ == "__main__":
 
 	# As described in paper (crossover rate and mutation percentage differ)
 	if SERVER: #
-	# 	hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,'elitism_rate': 0.1, 'structure_rate': 0.33}
-		epochs = 250
+		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		epochs = 100
+		# hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,'elitism_rate': 0.1, 'structure_rate': 0.33}
+		# epochs = 250
 		# Epochs - 32, optimizer - Adam
 	else:
 		hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
@@ -261,6 +262,7 @@ if __name__ == "__main__":
 	# elif test_gym:
 	# 	test_model_gym()
 	# else:
+
 	if mirrored_strategy is not None:
 		with mirrored_strategy.scope():
 			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
@@ -277,5 +279,23 @@ if __name__ == "__main__":
 	population[0].get_model().summary()
 	print(population[0].get_layer_specs())
 	print(population[0].get_layer_types())
+
+
+	# Secondary Test:
+	if SERVER:
+		clear_session()
+		print(('#' * 40 + '\n\n') * 10)
+		hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
+		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
+		epochs = 250
+		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
+		                      pop_size=hyperparameters['pop_size'])
+		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
+		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=256,
+		                   strategy=mirrored_strategy)
+		population[0].get_model().build(input_shape=(None, 1, 561))
+		population[0].get_model().summary()
+		print(population[0].get_layer_specs())
+		print(population[0].get_layer_types())
 
 
