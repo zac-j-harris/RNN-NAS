@@ -247,14 +247,15 @@ if __name__ == "__main__":
 
 	# As described in paper (crossover rate and mutation percentage differ)
 	if SERVER: #
-		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		# hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
+		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.33}
 		epochs = 100
 		# hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,'elitism_rate': 0.1, 'structure_rate': 0.33}
 		# epochs = 250
 		# Epochs - 32, optimizer - Adam
 	else:
-		hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
-		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
+		hyperparameters = {'generations': 10, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
+		                   'elitism_rate': 0.1, 'structure_rate': 1.33}
 		epochs = 20
 
 	# if train_gym:
