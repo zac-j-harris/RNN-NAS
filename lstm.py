@@ -286,7 +286,7 @@ if __name__ == "__main__":
 	if SERVER:
 		clear_session()
 		print(('#' * 40 + '\n\n') * 10)
-		hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
+		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
 		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
 		epochs = 250
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
