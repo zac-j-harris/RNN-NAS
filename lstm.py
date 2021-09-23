@@ -138,7 +138,7 @@ def load_uci_har():
 
 	length = 5
 	
-	if SERVER: # 
+	if not SERVER: #
 		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
 		y_t = get_data(y_train_filename, dirpath)[:length]
 	else:
