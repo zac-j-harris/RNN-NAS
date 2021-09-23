@@ -96,7 +96,7 @@ class Model():
 		# Set new values to default to parent1
 		self.input_shapes, self.layer_specs, self.layer_types = parent1.get_input_shapes(), parent1.get_layer_specs(), parent1.get_layer_types()
 
-		for layer_ind in range(len(self.layer_types)):
+		for layer_ind in range(len(self.layer_types)-1):
 			if len(old_layer_types) > layer_ind:
 				if parent1.get_layer_types()[layer_ind] == old_layer_types[layer_ind]:
 					# Take from fit parent for non-matching genes, otherwise random
