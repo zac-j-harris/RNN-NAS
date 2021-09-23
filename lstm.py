@@ -136,14 +136,14 @@ def load_uci_har():
 	y_train_filename 	= "train/y_train.txt"
 	y_test_filename 	= "test/y_test.txt"
 
-	length = 5
-	
-	if not SERVER: #
-		x_t = get_data(x_train_filename, dirpath, x=True)[:length]
-		y_t = get_data(y_train_filename, dirpath)[:length]
-	else:
-		x_t = get_data(x_train_filename, dirpath, x=True)
-		y_t = get_data(y_train_filename, dirpath)
+	# length = 5
+	# if not SERVER: #
+	# 	x_t = get_data(x_train_filename, dirpath, x=True)[:length]
+	# 	y_t = get_data(y_train_filename, dirpath)[:length]
+	# else:
+
+	x_t = get_data(x_train_filename, dirpath, x=True)
+	y_t = get_data(y_train_filename, dirpath)
 	x_tst = get_data(x_test_filename, dirpath, x=True)
 	y_tst = get_data(y_test_filename, dirpath)
 	
@@ -252,7 +252,7 @@ if __name__ == "__main__":
 		epochs = 250
 		# Epochs - 32, optimizer - Adam
 	else:
-		hyperparameters = {'generations': 1, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
+		hyperparameters = {'generations': 5, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
 		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
 		epochs = 20
 
