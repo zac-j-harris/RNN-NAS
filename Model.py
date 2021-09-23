@@ -20,6 +20,7 @@ logger = logging.getLogger("Model")
 class Model():
 
 	m_type_dict = {'uni': 0,'bi': 1, 'cascaded': 2, 'conv': 3, 'dense': 4, 'flat': 5}
+	constraint_dict = {0: "maxnorm", 1: "nonneg", 2: "unitnorm", 3: None}
 
 
 
@@ -249,7 +250,8 @@ class Model():
 		#                                                kernel_initializer=init_values[1],
 		#                                                kernel_constraint=init_values[2],
 		#                                                return_sequences=return_sequences)
-
+		if type(init_values[2]) == int:
+			init_values[2] = self.constraint_dict[init_values[2]]
 		target = (1, output_dim)
 		return LSTM(output_dim, activation=init_values[0],
 		                                          kernel_initializer=init_values[1],
@@ -299,6 +301,8 @@ class Model():
 		init_values = self.random_init_values() if init_values is None else init_values
 		# return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
 		# 			 kernel_constraint=init_values[2])
+		if type(init_values[2]) == int:
+			init_values[2] = self.constraint_dict[init_values[2]]
 		return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
 		             kernel_constraint=init_values[2])
 
