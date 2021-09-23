@@ -195,7 +195,7 @@ class Model():
 				This is because model_layer_specs shows each layer's composition, and we are changing a single layer_types' composition.
 				TODO: instead of random values, look into minor adjustments
 			"""
-			if layer_i == 0 or layer_i == len(self.layer_specs)-1:
+			if layer_i == 0 or layer_i >= len(self.layer_specs)-1:
 				return
 			change = random.choice(range(1,5))
 			# change = 4
