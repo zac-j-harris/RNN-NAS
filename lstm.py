@@ -202,6 +202,9 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		
 		population = NAS.mutation(population, h_params, num_elites)
 		clear_session()
+		for model in population:
+			print(model.layer_specs[len(model.layer_specs)-1][4])
+			model.layer_specs[len(model.layer_specs)-1][4] = 6
 		remake_pop(population, strategy)
 
 		population[len(population)-1].model.build(input_shape=(None, 1, 561))
