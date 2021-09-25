@@ -251,8 +251,9 @@ if __name__ == "__main__":
 	# As described in paper (crossover rate and mutation percentage differ)
 	if SERVER: #
 		# hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.05,'elitism_rate': 0.1, 'structure_rate': 0.1}
-		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.15,'elitism_rate': 0.1, 'structure_rate': 0.33}
-		epochs = 100
+		# epochs = 100
+		hyperparameters = {'generations': 30, 'pop_size': 20, 'mutation_rate': 0.30, 'mutation_percentage': 0.15, 'elitism_rate': 0.1, 'structure_rate': 0.25}
+		epochs = 32
 		# hyperparameters = {'generations': 100, 'pop_size': 25, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,'elitism_rate': 0.1, 'structure_rate': 0.33}
 		# epochs = 250
 		# Epochs - 32, optimizer - Adam
@@ -286,13 +287,13 @@ if __name__ == "__main__":
 
 
 	# Secondary Test:
-	second_test = False
+	second_test = True
 	if second_test:
 		clear_session()
 		print(('#' * 40 + '\n\n') * 10)
 		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
 		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
-		epochs = 250
+		epochs = 32
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
 		                      pop_size=hyperparameters['pop_size'])
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
