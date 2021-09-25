@@ -286,7 +286,8 @@ if __name__ == "__main__":
 
 
 	# Secondary Test:
-	if SERVER:
+	second_test = False
+	if second_test:
 		clear_session()
 		print(('#' * 40 + '\n\n') * 10)
 		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
