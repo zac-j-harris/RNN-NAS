@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
 
 	# Secondary Test:
-	second_test = True
+	second_test = False
 	if second_test:
 		clear_session()
 		print(('#' * 40 + '\n\n') * 10)
