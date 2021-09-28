@@ -171,8 +171,10 @@ def run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_sp
 	accuracy = [0 for _ in range(len(population))]
 	logger.debug("Fitting models:")
 	for model_i in range(len(population)):
-		population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
-								verbose=verbose)
+		# Can't use validation split with distribution strats
+		# population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
+		# 						verbose=verbose)
+		population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=verbose)
 		accuracy[model_i] = test(X_T, y_T, population[model_i].model)[1]
 	logger.debug("Models tested.")
 	return accuracy  # Currently testing on same data as trained
