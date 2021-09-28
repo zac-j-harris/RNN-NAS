@@ -72,7 +72,7 @@ class Model():
 			elif layer == self.m_type_dict['dense']:
 				drop, resh1, resh2, dense  = self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i],
 				                                             init_values=self.layer_specs[layer_i],
-				                                             rate=self.layer_specs[3])
+				                                             rate=self.layer_specs[layer_i][3])
 				self.model.add(dense)
 				self.model.add(resh1)
 				if layer_i < len(self.layer_types) - 1:
@@ -131,7 +131,7 @@ class Model():
 				self.mutate_helper(layer_i, h_params, self.base_output_dim)
 
 
-	def add_layer(self, layer_i, layer_type):
+	def add_layer(self, layer_i, layer_type, mutation_perc=0.15):
 		"""
 			Updates population with new layer, but does not make new model
 		"""
@@ -173,7 +173,8 @@ class Model():
 					quit(-1)
 		# if layer_i == 0:
 		# 	new_layer_specs[layer_i] = old_layer_specs
-		new_layer_specs[layer_i][4] = self.random_init_values()[4]
+		new_layer_specs[layer_i][4] = max(int(prior_layer_out * (1.0 + (random.random()*2.0 - 1.0) *
+		                                                             mutation_perc)), self.base_output_dim)
 		self.layer_types = new_layer_types
 		self.layer_specs = new_layer_specs
 		self.input_shapes = new_input_shapes
@@ -197,7 +198,7 @@ class Model():
 			# if layer_i == 0:
 			# 	self.add_layer(1, l_type)
 			# else:
-			self.add_layer(layer_i, l_type)
+			self.add_layer(layer_i, l_type, h_params['mutation_percentage'])
 
 		else:
 			"""
@@ -213,15 +214,19 @@ class Model():
 			logger.debug(self.layer_specs[layer_i])
 			if change == 4:
 				current = self.layer_specs[layer_i][change]
-				current = max( max( int((random.random() * 2.0 - 1.0) * h_params['mutation_percentage'] * current + current), 1), self.base_output_dim)
+				current = max(int((random.random() * 2.0 - 1.0) * h_params['mutation_percentage'] * current + current),
+				              self.base_output_dim)
 				self.layer_specs[layer_i][4] = current
 			elif change == 2:
 				self.layer_specs[layer_i][change] = 0
 			else:
 				self.layer_specs[layer_i][change] = None
 
-			new_init_values = self.random_init_values(activation=self.layer_specs[layer_i][0], initializer=self.layer_specs[layer_i][1], constraint=self.layer_specs[layer_i][2], 
-																dropout=self.layer_specs[layer_i][3], output_dim=self.layer_specs[layer_i][4])
+			new_init_values = self.random_init_values(activation=self.layer_specs[layer_i][0],
+			                                          initializer=self.layer_specs[layer_i][1],
+			                                          constraint=self.layer_specs[layer_i][2],
+			                                          dropout=self.layer_specs[layer_i][3],
+			                                          output_dim=self.layer_specs[layer_i][4])
 			# logger.debug(new_init_values)
 			# if new_init_values[0] == 0:
 			# 	logger.error(new_init_values)
@@ -242,7 +247,8 @@ class Model():
 			{0: 0.0, 1: 0.1, 2: 0.15, 3: 0.2, 4: 0.25, 5: 0.3, 6: 0.4, 7: 0.5}) if dropout is None else dropout
 		if output_dim is None:
 			logger.debug("global2: " + str(self.base_output_dim))
-		output_dim = int(random.random() * 10.0 * self.base_output_dim) + self.base_output_dim if output_dim is None else output_dim
+		# output_dim = int(random.random() * 10.0 * self.base_output_dim) + self.base_output_dim if output_dim is None else output_dim
+		output_dim = int(random.random() * 30.0 * self.base_output_dim) + self.base_output_dim if output_dim is None else output_dim
 		return [activation, initializer, constraint, dropout, output_dim]
 
 
