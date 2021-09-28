@@ -175,7 +175,7 @@ def run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_sp
 		# population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
 		# 						verbose=verbose)
 		population[model_i].model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=verbose)
-		accuracy[model_i] = test(X_T, y_T, population[model_i].model)[1]
+		accuracy[model_i] = test(X_T, y_T, model=population[model_i].model, batch_size=batch_size)[1]
 	logger.debug("Models tested.")
 	return accuracy  # Currently testing on same data as trained
 
