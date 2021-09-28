@@ -195,9 +195,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
 		
 		logger.debug(fitness)
-		# print(y[:2])
-		# print(population[0].get_model().predict(X[:2]))
-		# quit()
+
 		save_models(population, gen)
 		clear_session()
 		population, elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
@@ -205,13 +203,13 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		population = NAS.mutation(population, h_params, elites)
 		clear_session()
 		for model in population:
-			# print(model.layer_specs[len(model.layer_specs)-1][4])
 			model.layer_specs[len(model.layer_specs)-1][4] = 6
 		remake_pop(population, strategy)
 
 		population[elites[0]].model.build(input_shape=(None, 1, 561))
 		population[elites[0]].get_model().summary()
-		print(population[elites[0]].get_layer_specs())
+		for i in elites:
+			print(population[elites[i]].get_layer_specs())
 	return population, elites
 
 
@@ -223,14 +221,6 @@ if __name__ == "__main__":
 	# Get data
 	# (x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()		# shape = n, 1, 3072 or n, 3, 1024
 	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
-	# print(y_train.shape)
-	# print(y_train.shape)
-	# print(x_train.shape)
-	# quit()
-
-	# print(x_train.shape)
-	# print(y_train.shape)
-	# quit()
 
 
 	if not SERVER: # changed to test

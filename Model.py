@@ -33,7 +33,7 @@ class Model():
 			first_inp = (None, input_shapes[0], input_shapes[1])
 			self.input_shapes = [first_inp, input_shapes] # , input_shapes]
 			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense']] # , self.m_type_dict['flat']] #, self.m_type_dict['dense']]
-			self.layer_specs = [self.random_init_values(output_dim=self.base_output_dim), 
+			self.layer_specs = [self.random_init_values(output_dim=100),
 			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] # , self.base_output_dim] #, 
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
