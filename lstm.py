@@ -200,9 +200,9 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		# quit()
 		save_models(population, gen)
 		clear_session()
-		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
+		population, elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
 		
-		population = NAS.mutation(population, h_params, num_elites)
+		population = NAS.mutation(population, h_params, elites)
 		clear_session()
 		for model in population:
 			# print(model.layer_specs[len(model.layer_specs)-1][4])
