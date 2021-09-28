@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Reshape, Flatten, Dropout
 from tensorflow.keras.models import Sequential
 # import tensorflow as tf
 import random, logging
@@ -69,7 +69,12 @@ class Model():
 
 
 			elif layer == self.m_type_dict['dense']:
-				self.model.add(self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i]))
+				drop, resh1, resh2, dense  = self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i])
+				self.model.add(dense)
+				self.model.add(resh1)
+				if layer_i < len(self.layer_types) - 1:
+					self.model.add(drop)
+					self.model.add(resh2)
 				# pop_spec does have a value, because it's never not created
 
 			elif layer == self.m_type_dict['flat']:
@@ -298,13 +303,14 @@ class Model():
 	# 		kernel_initializer=init_values[1], kernel_constraint=init_values[2]), Reshape(target_shape=(new_input_shape[1] ** 2, new_input_shape[2]))
 
 
-	def make_Dense(self, output_dim, input_shape, init_values=None):
+	def make_Dense(self, output_dim, input_shape, init_values=None, rate=0.4):
 		init_values = self.random_init_values() if init_values is None else init_values
 		# return Dense(output_dim, input_shape=input_shape, activation=init_values[0], kernel_initializer=init_values[1],
 		# 			 kernel_constraint=init_values[2])
 		if type(init_values[2]) == int:
 			init_values[2] = self.constraint_dict[init_values[2]]
-		return Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+		return Dropout(rate=rate), Reshape(target_shape=(output_dim,)),  Reshape(target_shape=(1, output_dim)), \
+		       Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
 		             kernel_constraint=init_values[2])
 
 	def get_model(self):
