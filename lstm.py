@@ -224,7 +224,7 @@ if __name__ == "__main__":
 
 
 	if SERVER: # changed to test
-		mirrored_strategy = tf.distribute.MirroredStrategy(num_gpus=4)
+		mirrored_strategy = tf.distribute.MirroredStrategy()
 		# mirrored_strategy = None
 	else:
 		mirrored_strategy = None
