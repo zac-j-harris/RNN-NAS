@@ -270,7 +270,7 @@ class Model():
 			init_values[2] = self.constraint_dict[init_values[2]]
 		target = (1, output_dim)
 		if is_first:
-			a = LSTM(output_dim, input_shape=(None, 1, 561),activation=init_values[0],
+			a = LSTM(output_dim, input_shape=(1, 561),activation=init_values[0],
 		                                          kernel_initializer=init_values[1],
 		                                          kernel_constraint=init_values[2],
 		                                          return_sequences=return_sequences),  Reshape(target_shape=target)
