@@ -188,7 +188,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		  validation_split=0.05, verbose=0, input_shape=(3, 1024), strategy=None):
 	# import NAS
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
-
+	elites = [0]
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
 		
@@ -209,9 +209,10 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 			model.layer_specs[len(model.layer_specs)-1][4] = 6
 		remake_pop(population, strategy)
 
-		population[len(population)-1].model.build(input_shape=(None, 1, 561))
-		population[len(population)-1].get_model().summary()
-	return population
+		population[elites[0]].model.build(input_shape=(None, 1, 561))
+		population[elites[0]].get_model().summary()
+		print(population[elites[0]].get_layer_specs())
+	return population, elites
 
 
 def test(X, y, model, batch_size=5, verbose=1):
@@ -280,13 +281,13 @@ if __name__ == "__main__":
 	# population[0].get_summary(inp_shape)
 	# quit()
 
-	population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
+	population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
 								epochs=epochs, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
 
-	population[0].get_model().build(input_shape=(None, 1, 561))
-	population[0].get_model().summary()
-	print(population[0].get_layer_specs())
-	print(population[0].get_layer_types())
+	population[elites[0]].get_model().build(input_shape=(None, 1, 561))
+	population[elites[0]].get_model().summary()
+	print(population[elites[0]].get_layer_specs())
+	print(population[elites[0]].get_layer_types())
 
 
 	# Secondary Test:
@@ -299,12 +300,12 @@ if __name__ == "__main__":
 		epochs = 64
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
 		                      pop_size=hyperparameters['pop_size'])
-		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
+		population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
 		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=256,
 		                   strategy=mirrored_strategy)
-		population[0].get_model().build(input_shape=(None, 1, 561))
-		population[0].get_model().summary()
-		print(population[0].get_layer_specs())
-		print(population[0].get_layer_types())
+		population[elites[0]].get_model().build(input_shape=(None, 1, 561))
+		population[elites[0]].get_model().summary()
+		print(population[elites[0]].get_layer_specs())
+		print(population[elites[0]].get_layer_types())
 
 
