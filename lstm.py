@@ -195,7 +195,9 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
 		
 		logger.debug(fitness)
-		
+		# print(y[:2])
+		# print(population[0].get_model().predict(X[:2]))
+		# quit()
 		save_models(population, gen)
 		clear_session()
 		population, num_elites = NAS.crossover(population, h_params, fitness, input_shape=input_shape)
@@ -220,7 +222,8 @@ if __name__ == "__main__":
 	# Get data
 	# (x_train, y_train, x_test, y_test, inp_shape) = load_cifar10()		# shape = n, 1, 3072 or n, 3, 1024
 	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
-
+	# print(y_train.shape)
+	# print(y_train.shape)
 	# print(x_train.shape)
 	# quit()
 
@@ -258,7 +261,7 @@ if __name__ == "__main__":
 		# epochs = 250
 		# Epochs - 32, optimizer - Adam
 	else:
-		hyperparameters = {'generations': 10, 'pop_size': 2, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
+		hyperparameters = {'generations': 10, 'pop_size': 3, 'mutation_rate': 1.0, 'mutation_percentage': 0.5,
 		                   'elitism_rate': 0.1, 'structure_rate': 1.33}
 		epochs = 20
 
@@ -292,8 +295,8 @@ if __name__ == "__main__":
 		clear_session()
 		print(('#' * 40 + '\n\n') * 10)
 		hyperparameters = {'generations': 100, 'pop_size': 30, 'mutation_rate': 0.30, 'mutation_percentage': 0.3,
-		                   'elitism_rate': 0.1, 'structure_rate': 0.33}
-		epochs = 32
+		                   'elitism_rate': 0.1, 'structure_rate': 0.25}
+		epochs = 64
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
 		                      pop_size=hyperparameters['pop_size'])
 		population = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
