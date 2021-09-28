@@ -79,17 +79,18 @@ def crossover(population, h_params, fitness, input_shape=(3, 1024)):
 
 
 	
-	return population, num_elites
+	return population, elites
 
 
 
 
-def mutation(population, h_params, num_elites):
+def mutation(population, h_params, elites):
 	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
 
-	for model_i in range(num_elites, h_params['pop_size']):
-		population[model_i].mutate(h_params)
+	for model_i in range(h_params['pop_size']):
+		if not (model_i in elites):
+			population[model_i].mutate(h_params)
 	return population
 
 
