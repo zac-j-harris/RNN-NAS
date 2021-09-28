@@ -48,7 +48,8 @@ class Model():
 			
 
 			if layer == self.m_type_dict['uni']:
-				a, b = self.make_uni_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i]) #, return_sequences=not_final_layer))
+
+				a, b = self.make_uni_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i], is_first=layer_i==0) #, return_sequences=not_final_layer))
 				# a = self.make_uni_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i],
 				#                        init_values=self.layer_specs[layer_i])  # , return_sequences=not_final_layer))
 				self.model.add(a)
@@ -252,7 +253,7 @@ class Model():
 		return [activation, initializer, constraint, dropout, output_dim]
 
 
-	def make_uni_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False):
+	def make_uni_LSTM(self, output_dim, input_shape, init_values=None, return_sequences=False, is_first=False):
 		init_values = self.random_init_values() if init_values is None else init_values
 		# if input_shape[0] == None and len(input_shape) == 3:
 		# 	input_shape = (input_shape[1], input_shape[2])
@@ -268,10 +269,17 @@ class Model():
 		if type(init_values[2]) == int:
 			init_values[2] = self.constraint_dict[init_values[2]]
 		target = (1, output_dim)
-		return LSTM(output_dim, activation=init_values[0],
+		if is_first:
+			a = LSTM(output_dim, input_shape=(None, 1, 561),activation=init_values[0],
 		                                          kernel_initializer=init_values[1],
 		                                          kernel_constraint=init_values[2],
 		                                          return_sequences=return_sequences),  Reshape(target_shape=target)
+		else:
+			a = LSTM(output_dim, activation=init_values[0],
+		                                          kernel_initializer=init_values[1],
+		                                          kernel_constraint=init_values[2],
+		                                          return_sequences=return_sequences),  Reshape(target_shape=target)
+		return a
 		# return LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
 		#             kernel_constraint=init_values[2],
 		#             return_sequences=return_sequences)
