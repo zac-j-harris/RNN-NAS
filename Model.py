@@ -61,7 +61,8 @@ class Model():
 				# self.model.add(self.make_bi_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i]))
 
 			elif layer == self.m_type_dict['cascaded']:
-				a, b, c, d = self.make_cascaded_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i])
+				a, b, c, d = self.make_cascaded_LSTM(self.layer_specs[layer_i][4], self.input_shapes[layer_i],
+				                                     init_values=self.layer_specs[layer_i])
 				self.model.add(a)
 				self.model.add(b)
 				self.model.add(c)
@@ -69,7 +70,9 @@ class Model():
 
 
 			elif layer == self.m_type_dict['dense']:
-				drop, resh1, resh2, dense  = self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i], init_values=self.layer_specs[layer_i])
+				drop, resh1, resh2, dense  = self.make_Dense(self.layer_specs[layer_i][4], self.input_shapes[layer_i],
+				                                             init_values=self.layer_specs[layer_i],
+				                                             rate=self.layer_specs[3])
 				self.model.add(dense)
 				self.model.add(resh1)
 				if layer_i < len(self.layer_types) - 1:
@@ -284,8 +287,11 @@ class Model():
 		if input_shape[0] == None and len(input_shape) == 3:
 			input_shape = (input_shape[1], input_shape[2])
 			return Reshape(target_shape=input_shape, input_shape=input_shape), Bidirectional(
-				LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape), 
-			Reshape(target_shape=input_shape, input_shape=input_shape), LSTM(output_dim, activation=init_values[0], input_shape=input_shape, kernel_initializer=init_values[1], kernel_constraint=init_values[2])
+				LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
+				     kernel_constraint=init_values[2]), input_shape=input_shape),
+			Reshape(target_shape=input_shape, input_shape=input_shape), \
+			LSTM(output_dim, activation=init_values[0], input_shape=input_shape,
+			     kernel_initializer=init_values[1], kernel_constraint=init_values[2])
 		
 		return Reshape(target_shape=input_shape), Bidirectional(
 			LSTM(output_dim, activation=init_values[0], kernel_initializer=init_values[1], kernel_constraint=init_values[2]), input_shape=input_shape), 
