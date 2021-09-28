@@ -32,22 +32,39 @@ def get_elites(num_elites, pop_size, fitness):
 	"""
 		Returns elites, and upper half of population
 	"""
+	def indexOf(l, i):
+		for j in range(len(l)):
+			if l[j] == i:
+				return j
+		return -1
+
 	elites = [0 for _ in range(num_elites)]
 	half_pop_size = pop_size // 2 + 1 if pop_size // 2 != pop_size / 2 else pop_size // 2
 	above_average = [0 for _ in range(max(half_pop_size, 1 )) ]
-	num_elites = 0
+	# num_elites = 0
 	min_fit = ceil(round(min(fitness), 3))
 	# Not a very efficient calculation, but population sizes aren't large
-	while num_elites < len(above_average):
-		current_max = 0
-		for fit_ind in range(pop_size):
-			if (fitness[fit_ind] > fitness[current_max] and fit_ind not in above_average) or ceil(round(fitness[current_max], 3)) == min_fit:
-				current_max = fit_ind
-		if num_elites < len(elites):
-			elites[num_elites] = current_max
-		above_average[num_elites] = current_max
-		num_elites += 1
+	sort_fit = fitness[:]
+	sort_fit = sorted(sort_fit, reverse=True)
+	for i in range(max(half_pop_size,1)):
+		ind = indexOf(fitness, sort_fit[i])
+		if i < num_elites:
+			elites[i] = ind
+		above_average[i] = ind
+	# while num_elites < len(above_average):
+	# 	current_max = 0
+	# 	for fit_ind in range(pop_size):
+	# 		if (fitness[fit_ind] > fitness[current_max] and fit_ind not in above_average) or ceil(round(fitness[current_max], 3)) == min_fit:
+	# 			current_max = fit_ind
+	# 	if num_elites < len(elites):
+	# 		elites[num_elites] = current_max
+	# 	above_average[num_elites] = current_max
+	# 	num_elites += 1
 	# logger.debug(elites)
+
+	# print(sort_fit)
+	# print(fitness)
+	# print(elites)
 	return elites, above_average
 
 
@@ -87,7 +104,7 @@ def crossover(population, h_params, fitness, input_shape=(3, 1024)):
 def mutation(population, h_params, elites):
 	# population = {0: population, 1: layer_types, 2: layer_specs, 3: pop_binary_specifications, 4: m_type, 5: pop_size, 6: input_shapes}
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
-
+	# print(elites)
 	for model_i in range(h_params['pop_size']):
 		if not (model_i in elites):
 			population[model_i].mutate(h_params)
