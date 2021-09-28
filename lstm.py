@@ -226,8 +226,8 @@ if __name__ == "__main__":
 
 
 	if SERVER: # changed to test
-		mirrored_strategy = tf.distribute.MirroredStrategy()
-		# mirrored_strategy = None
+		# mirrored_strategy = tf.distribute.MirroredStrategy()
+		mirrored_strategy = None
 	else:
 		mirrored_strategy = None
 		# mirrored_strategy = tf.distribute.MirroredStrategy(num_gpus=4)
@@ -274,7 +274,8 @@ if __name__ == "__main__":
 	# quit()
 
 	population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-								epochs=epochs, input_shape=inp_shape, batch_size=7, strategy=mirrored_strategy)
+								epochs=epochs, input_shape=inp_shape, batch_size=256,  # 7 for gpus
+                               strategy=mirrored_strategy)
 
 	population[elites[0]].get_model().build(input_shape=(None, 1, 561))
 	population[elites[0]].get_model().summary()
@@ -293,7 +294,7 @@ if __name__ == "__main__":
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
 		                      pop_size=hyperparameters['pop_size'])
 		population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
-		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=7,
+		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=256,  # 7 for gpus
 		                   strategy=mirrored_strategy)
 		population[elites[0]].get_model().build(input_shape=(None, 1, 561))
 		population[elites[0]].get_model().summary()
