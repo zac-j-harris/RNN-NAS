@@ -209,7 +209,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		population[elites[0]].model.build(input_shape=(None, 1, 561))
 		population[elites[0]].get_model().summary()
 		for i in elites:
-			print(population[elites[i]].get_layer_specs())
+			print(population[i].get_layer_specs())
 	return population, elites
 
 
@@ -223,12 +223,12 @@ if __name__ == "__main__":
 	(x_train, y_train, x_test, y_test, inp_shape) = load_uci_har()	# shape = n, 1, 561
 
 
-	if not SERVER: # changed to test
-		# mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
-		mirrored_strategy = None
+	if SERVER: # changed to test
+		mirrored_strategy = tf.distribute.MirroredStrategy(num_gpus=4)
+		# mirrored_strategy = None
 	else:
 		mirrored_strategy = None
-		# mirrored_strategy = tf.contrib.distribute.MirroredStrategy(num_gpus=4)
+		# mirrored_strategy = tf.distribute.MirroredStrategy(num_gpus=4)
 
 	# quit(0)
 	logger.debug("global: " + str(base_output_dim))
