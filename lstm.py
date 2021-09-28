@@ -186,7 +186,7 @@ def save_models(population, generation):
 		model.save("./models/gen_" + str(generation) + "_model_" + str(model_i) + ".h5")
 
 
-def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(5),
+def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(7),
 		  validation_split=0.05, verbose=0, input_shape=(3, 1024), strategy=None):
 	# import NAS
 	# h_params = {'generations': 1, 'pop_size': 10, 'crossover_rate': 0.9, 'mutation_rate': 0.3, 'elitism_rate': 0.1}
@@ -215,7 +215,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	return population, elites
 
 
-def test(X, y, model, batch_size=5, verbose=1):
+def test(X, y, model, batch_size=tf.constant(7), verbose=1):
 	return model.evaluate(x=X, y=y, verbose=verbose, batch_size=batch_size)
 
 
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 	# quit()
 
 	population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population, h_params=hyperparameters,
-								epochs=epochs, input_shape=inp_shape, batch_size=256, strategy=mirrored_strategy)
+								epochs=epochs, input_shape=inp_shape, batch_size=tf.constant(7), strategy=mirrored_strategy)
 
 	population[elites[0]].get_model().build(input_shape=(None, 1, 561))
 	population[elites[0]].get_model().summary()
@@ -293,7 +293,7 @@ if __name__ == "__main__":
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni",
 		                      pop_size=hyperparameters['pop_size'])
 		population, elites = train(X=x_train, y=y_train, X_T=x_test, y_T=y_test, population=population,
-		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=256,
+		                   h_params=hyperparameters, epochs=epochs, input_shape=inp_shape, batch_size=tf.constant(7),
 		                   strategy=mirrored_strategy)
 		population[elites[0]].get_model().build(input_shape=(None, 1, 561))
 		population[elites[0]].get_model().summary()
