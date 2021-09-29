@@ -34,7 +34,7 @@ class Model():
 			self.input_shapes = [first_inp, input_shapes] # , input_shapes]
 			self.layer_types = [self.m_type_dict[self.model_type], self.m_type_dict['dense']] # , self.m_type_dict['flat']] #, self.m_type_dict['dense']]
 			self.layer_specs = [self.random_init_values(output_dim=100),
-			self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)] # , self.base_output_dim] #, 
+			self.random_init_values("sigmoid", "normal", None, dropout=0.0, output_dim=self.base_output_dim)] # , self.base_output_dim] #,
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
 			self.input_shapes, self.layer_types, self.layer_specs = input_shapes, layer_types, layer_specs
@@ -329,7 +329,8 @@ class Model():
 		# 			 kernel_constraint=init_values[2])
 		if type(init_values[2]) == int:
 			init_values[2] = self.constraint_dict[init_values[2]]
-		return Dropout(rate=rate), Reshape(target_shape=(output_dim,)),  Reshape(target_shape=(1, output_dim)), \
+		dropout_rate = self.random_init_values(dropout=rate)[3]
+		return Dropout(rate=dropout_rate), Reshape(target_shape=(output_dim,)),  Reshape(target_shape=(1, output_dim)), \
 		       Dense(output_dim, activation=init_values[0], kernel_initializer=init_values[1],
 		             kernel_constraint=init_values[2])
 
