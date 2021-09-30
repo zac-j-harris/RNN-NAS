@@ -140,7 +140,7 @@ class Model():
 		# 	print('layer = 0')
 		# num_layer_types = len(population['layer_specs'][model_i])
 		# old_input_shape = self.input_shapes[layer_i]
-		old_layer_specs = self.layer_specs[layer_i]
+		# old_layer_specs = self.layer_specs[layer_i]
 
 		prior_layer_out = self.layer_specs[layer_i][4]
 		# new_input_shape = tf.constant([1, prior_layer_out])
@@ -174,7 +174,7 @@ class Model():
 					quit(-1)
 		# if layer_i == 0:
 		# 	new_layer_specs[layer_i] = old_layer_specs
-		new_layer_specs[layer_i][4] = max(int(prior_layer_out * (1.0 + (random.random()*2.0 - 1.0) *
+		new_layer_specs[layer_i][4] = max(int(prior_layer_out * (1.5 + (random.random()*2.0 - 1.0) *
 		                                                             mutation_perc)), self.base_output_dim)
 		self.layer_types = new_layer_types
 		self.layer_specs = new_layer_specs
