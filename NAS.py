@@ -28,7 +28,7 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 
 
 
-def get_elites(num_elites, pop_size, fitness):
+def get_elites(num_elites, pop_size, fitness, selection_rate=0.5):
 	"""
 		Returns elites, and upper half of population
 	"""
@@ -39,7 +39,7 @@ def get_elites(num_elites, pop_size, fitness):
 		return -1
 
 	elites = [0 for _ in range(num_elites)]
-	half_pop_size = pop_size // 2 + 1 if pop_size // 2 != pop_size / 2 else pop_size // 2
+	half_pop_size = round(float(pop_size) * selection_rate)
 	above_average = [0 for _ in range(max(half_pop_size, 1 )) ]
 	# num_elites = 0
 	min_fit = ceil(round(min(fitness), 3))
@@ -70,15 +70,16 @@ def crossover(population, h_params, fitness, input_shape=(3, 1024)):
 
 	num_elites = max(int(h_params['pop_size'] * h_params['elitism_rate']), 1)
 
-	elites, above_average = get_elites( num_elites, h_params['pop_size'], fitness)
+	elites, above_average = get_elites( num_elites, h_params['pop_size'], fitness, selection_rate=0.25)
 	
 	# New data for crossed over population
 	for i in range(h_params['pop_size']):
 		if i in above_average:
 			continue
-		
-		parent1 = population[random.choice(above_average)]
-		parent2 = population[i]
+		p1_ind = random.choice(above_average)
+		p1_greater = fitness[p1_ind] > fitness[i]
+		parent1 = population[p1_ind] if p1_greater else population[i]
+		parent2 = population[i] if p1_greater else population[p1_ind]
 
 		parent2.crossover(parent1)
 
