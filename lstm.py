@@ -186,6 +186,23 @@ def save_models(population, generation):
 		model.save("./models/gen_" + str(generation) + "_model_" + str(model_i) + ".h5")
 
 
+def use_best_model_from_paper(output_dim=6):
+	from Model import Model
+	# self.layer_types = [self.m_type_dict[self.model_type],
+	#                     self.m_type_dict['dense']]  # , self.m_type_dict['flat']] #, self.m_type_dict['dense']]
+	# self.layer_specs = [self.random_init_values(output_dim=100),
+	#                     self.random_init_values("sigmoid", "normal", None, dropout=0.0,
+	#                                             output_dim=self.base_output_dim)]
+	# [activation, initializer, constraint, dropout, output_dim]
+	model = Model(output_dim=output_dim, layer_types=[0, 0, 0, 0, 4, 4, 4], layer_specs=[
+		["tanh", "glorot_uniform", None, 0.0, 100], ["tanh", "glorot_uniform", None, 0.0, 175],
+		["tanh", "glorot_uniform", None, 0.0, 98], ["tanh", "glorot_uniform", None, 0.0, 130],
+		["linear", "glorot_uniform", None, 0.4, 125], ["relu", "glorot_uniform", None, 0.4, 100],
+		["softmax", "glorot_uniform", None, 0.4, 6]],
+	              input_shapes=(1, 561), model_type="uni")
+	return model
+
+
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(7),
 		  validation_split=0.05, verbose=0, input_shape=(3, 1024), strategy=None):
 	# import NAS
@@ -206,6 +223,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		clear_session()
 		for model in population:
 			model.layer_specs[len(model.layer_specs)-1][4] = 6
+		population[0] = use_best_model_from_paper()
 		remake_pop(population, strategy)
 
 		population[elites[0]].model.build(input_shape=(None, 1, 561))
