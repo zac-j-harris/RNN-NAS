@@ -199,9 +199,14 @@ def use_best_model_from_paper(output_dim=6):
 		["tanh", "glorot_uniform", None, 0.0, 98], ["tanh", "glorot_uniform", None, 0.0, 130],
 		["linear", "glorot_uniform", None, 0.4, 125], ["relu", "glorot_uniform", None, 0.4, 100],
 		["softmax", "glorot_uniform", None, 0.4, 6]],
-	              input_shapes=(1, 561), model_type="uni")
+	              input_shapes=[(None, 1, 561), (1, 100), (1, 175), (1, 98), (1, 130), (1, 125), (1, 100)], model_type="uni")
 	return model
 
+def shuffle(a, b):
+	temp = list(zip(a, b))
+	random.shuffle(temp)
+	a2, b2 = zip(*temp)
+	return np.asarray(a2), np.asarray(b2)
 
 def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_size=tf.constant(7),
 		  validation_split=0.05, verbose=0, input_shape=(3, 1024), strategy=None):
@@ -210,8 +215,9 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 	elites = [0]
 	for gen in range(h_params['generations']):
 		logger.debug("Testing:")
-		
-		fitness = run_single_gen(X, y, X_T, y_T, population, epochs, batch_size, validation_split, verbose)
+		X2, y2 = shuffle(X, y)
+		X_T2, y_T2 = shuffle(X_T, y_T)
+		fitness = run_single_gen(X2, y2, X_T2, y_T2, population, epochs, batch_size, validation_split, verbose)
 		
 		logger.debug(fitness)
 
@@ -287,6 +293,7 @@ if __name__ == "__main__":
 			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
 	else:
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
+	population[0] = use_best_model_from_paper()
 	# print(inp_shape)
 	# population[0].get_summary(inp_shape)
 	# quit()
