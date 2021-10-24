@@ -38,7 +38,7 @@ class Model():
 			# self.random_init_values("sigmoid", "normal", None, output_dim=self.base_output_dim)]
 		else:
 			self.input_shapes, self.layer_types, self.layer_specs = input_shapes, layer_types, layer_specs
-
+		# print(self.layer_specs, self.layer_types, self.input_shapes)
 
 		for layer_i in range(len(self.layer_types)):
 			# self.layer_types = layer_types
