@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+Data/Backups/*
 models/
 
 # OSX Files
