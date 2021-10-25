@@ -231,7 +231,7 @@ def train(X, y, X_T, y_T, population, h_params, epochs=tf.constant(500), batch_s
 		clear_session()
 		for model in population:
 			model.layer_specs[len(model.layer_specs)-1][4] = 6
-		# population[0] = use_best_model_from_paper()
+		population[0] = use_best_model_from_paper()
 		remake_pop(population, strategy)
 
 		population[elites[0]].model.build(input_shape=(None, 1, 561))
@@ -295,7 +295,7 @@ if __name__ == "__main__":
 			population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
 	else:
 		population = init_pop(base_output_dim, inp_shape, mirrored_strategy, m_type="uni", pop_size=hyperparameters['pop_size'])
-	# population[0] = use_best_model_from_paper()
+	population[0] = use_best_model_from_paper()
 	# print(inp_shape)
 	# population[0].get_summary(inp_shape)
 	# quit()
