@@ -28,7 +28,7 @@ def make_pop(output_dim=None, input_shapes=None, layer_types=None, layer_specs=N
 
 
 
-def get_elites(num_elites, pop_size, fitness, selection_rate=0.5):
+def get_elites(num_elites, pop_size, fitness, selection_rate=0.9):
 	"""
 		Returns elites, and upper half of population
 	"""
@@ -70,7 +70,7 @@ def crossover(population, h_params, fitness, input_shape=(3, 1024)):
 
 	num_elites = max(int(h_params['pop_size'] * h_params['elitism_rate']), 1)
 
-	elites, above_average = get_elites( num_elites, h_params['pop_size'], fitness, selection_rate=1.0)
+	elites, above_average = get_elites( num_elites, h_params['pop_size'], fitness, selection_rate=0.9)
 	
 	# New data for crossed over population
 	for i in range(h_params['pop_size']):
