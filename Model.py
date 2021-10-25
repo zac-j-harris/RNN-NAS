@@ -215,8 +215,8 @@ class Model():
 			logger.debug(self.layer_specs[layer_i])
 			if change == 4:
 				current = self.layer_specs[layer_i][change]
-				current = max(int((random.random() * 2.0 - 1.0) * h_params['mutation_percentage'] * current + current),
-				              self.base_output_dim)
+				current = min(max(int((random.random() * 2.0 - 1.0) * h_params['mutation_percentage'] * current + current),
+				              self.base_output_dim), 128)
 				self.layer_specs[layer_i][4] = current
 			elif change == 2:
 				self.layer_specs[layer_i][change] = 0
